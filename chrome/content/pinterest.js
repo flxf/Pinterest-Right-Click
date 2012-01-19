@@ -43,11 +43,12 @@ function pinTarget(aEvent) {
     pathPieces[pathPieces.length - 1] = fileName;
 
     // Remove resize params
+    let impliedMediaURI;
     if (pathPieces.length == 2) {
-      let impliedMediaURI =
+      impliedMediaURI =
         mediaURI.clone().setPath("/" + pathPieces.join("/"));
     } else if (pathPieces.length == 3) {
-      let impliedMediaURI =
+      impliedMediaURI =
         mediaURI.clone().setPath("/" + pathPieces[0] + "/" + pathPieces[2]);
     } else {
       // TODO: Report error of some sort, bail for now
