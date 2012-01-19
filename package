@@ -1,4 +1,5 @@
 #!/bin/bash
+# TODO: Look into a real makefile?
 
 # descend into chrome directory
 CHROME_DIR="chrome"
@@ -8,12 +9,16 @@ CHROME_FILES="
   content
   locale"
 rm pinterest.jar
+
+# TODO: Generated files should not be mixed in with source
 zip -r pinterest.jar $CHROME_FILES
 
 # ascend into source directory
 cd ..
 
 OBJECT_DIR="output"
+mkdir -p $OBJECT_DIR
+
 OBJECT_FILES="
   chrome.manifest
   $CHROME_DIR/pinterest.jar
