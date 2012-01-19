@@ -22,7 +22,7 @@ function pinTarget(aEvent) {
   //
   // Warning: This code sucks because it relies on us to create edge-cases
   // whenever we find them.
-  
+
   // For any static Facebook image only pin the full-size version
   if (/fbcdn-sphotos.a.akamaihd.net/.test(mediaURI.host())) {
     let mediaPath = mediaURI.path();
@@ -47,7 +47,7 @@ function pinTarget(aEvent) {
       let impliedMediaURI =
         mediaURI.clone().setPath("/" + pathPieces.join("/"));
     } else if (pathPieces.length == 3) {
-      let impliedMediaURI = 
+      let impliedMediaURI =
         mediaURI.clone().setPath("/" + pathPieces[0] + "/" + pathPieces[2]);
     } else {
       // TODO: Report error of some sort, bail for now
