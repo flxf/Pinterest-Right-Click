@@ -2,9 +2,9 @@
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
-    <em:id>pinterest@felixfung.ca</em:id>
+    <em:id>pinterest-addon@felixfung.ca</em:id>
     <em:name>Unofficial Pinterest Add-On</em:name>
-    <em:version>2012.01.18.0</em:version>
+    <em:version>2012.01.19.0</em:version>
     <em:type>2</em:type>
     <em:creator>Felix Fung</em:creator>
     <em:description>Adds an option create pins from the right-clicking images or other media.</em:description>
@@ -12,7 +12,7 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>9.0</em:minVersion>
-        <em:maxVersion>9.0.*</em:maxVersion>
+        <em:maxVersion>12.0a1</em:maxVersion>
       </Description>
     </em:targetApplication>
   </Description>
