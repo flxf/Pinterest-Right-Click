@@ -7,7 +7,7 @@
     <em:version>20120118.0</em:version>
     <em:type>2</em:type>
     <em:creator>Felix Fung</em:creator>
-    <em:description>Adds an option to pin objects to your wall from the right-click menu.</em:description>
+    <em:description>Adds an option create pins from the right-clicking images or other media.</em:description>
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
