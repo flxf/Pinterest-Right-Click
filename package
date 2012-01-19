@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# descend into chrome directory
+CHROME_DIR="chrome"
+cd $CHROME_DIR
+
+CHROME_FILES="
+  content
+  locale"
+rm pinterest.jar
+zip -r pinterest.jar $CHROME_FILES
+
+# ascend into source directory
+cd ..
+
+OBJECT_DIR="output"
+OBJECT_FILES="
+  chrome.manifest
+  $CHROME_DIR/pinterest.jar
+  modules/*
+  install.rdf"
+
+rm $OBJECT_DIR/pinterest.xpi
+zip $OBJECT_DIR/pinterest.xpi $OBJECT_FILES

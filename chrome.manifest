@@ -1,0 +1,6 @@
+overlay chrome://browser/content/browser.xul chrome://pinterest/content/overlay.xul
+
+content pinterest         jar:chrome/pinterest.jar!/content/
+content pinterest-modules modules/
+
+locale  pinterest en-US   jar:chrome/pinterest.jar!/locale/en-US/

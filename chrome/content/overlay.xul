@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay SYSTEM "chrome://pinterest/locale/pinterest.dtd">
+<overlay id="pinterestOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/javascript" src="pinterest.js" />
+  <popup id="contentAreaContextMenu">
+    <menuitem id="pinterest-context-pinit"
+              label="&pinIt.label;"
+              accesskey="&pinIt.accesskey;"
+              oncommand="pinTarget();" />
+  </popup>
+</overlay>
