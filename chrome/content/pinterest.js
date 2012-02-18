@@ -176,6 +176,12 @@ window.addEventListener("load", function() {
     }
   }
 
-  let menu = document.getElementById("contentAreaContextMenu");
-  menu.addEventListener("popupshowing", enablePinBeforePopupShowing, false);
+  // Avoid circular-reference created by closure
+  // https://developer.mozilla.org/en/A_re-introduction_to_JavaScript#Memory_leaks
+  //
+  // Note: As of writing, section encouraging this requires review
+  (function() {
+    let menu = document.getElementById("contentAreaContextMenu");
+    menu.addEventListener("popupshowing", enablePinBeforePopupShowing, false);
+  })();
 }, false);
