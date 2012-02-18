@@ -72,7 +72,7 @@ function pinTarget(aMediaURI, aAltText) {
 
   // Set the alt test of the pin.
   if (aAltText !== undefined && aAltText) {
-    createURI.addQueryParam("alt", aAltText);
+    createURI.addQueryParam("alt", encodeURIComponent(aAltText));
   }
 
   // Not sure what Pinterest uses the title for, but let's give it to them
@@ -157,29 +157,29 @@ window.addEventListener("load", function() {
     // Only images should be pinnable
     let isDirectlyPinnable = (target instanceof HTMLImageElement);
     menuitem.hidden = !isDirectlyPinnable;
+
     if (isDirectlyPinnable) {
       // This is bad, have URI parse and re-stringify to prevent code-injection
-      let targetURL = new Uri(target.src).toString();
-      let targetAlt = encodeURIComponent(target.alt);
-      menuitem.setAttribute("oncommand",
-                            "pinTarget(\"" + targetURL + "\", \"" + targetAlt + "\");");
+      menuitem.addEventListener("command", function() {
+        pinTarget(target.src, target.alt);
+      });
       pinbgitem.hidden = true;
-      return;
+    } else {
+      let bgImageURL = findSingleBackgroundImage(target);
+      pinbgitem.hidden = !bgImageURL;
+      if (bgImageURL) {
+        pinbgitem.addEventListener("command", function() {
+          pinTarget(bgImageURL);
+        });
+      }
     }
 
-    let bgImageURL = findSingleBackgroundImage(target);
-    pinbgitem.hidden = !bgImageURL;
-    if (bgImageURL) {
-      // This is bad, have URI parse and re-stringify to prevent code-injection
-      bgImageURL = new Uri(bgImageURL).toString();
-      pinbgitem.setAttribute("oncommand", "pinTarget(\"" + bgImageURL + "\");");
-    }
+    // Break circular references
+    pinbgitem = null;
+    menuitem = null;
   }
 
   // Avoid circular-reference created by closure
-  // https://developer.mozilla.org/en/A_re-introduction_to_JavaScript#Memory_leaks
-  //
-  // Note: As of writing, section encouraging this requires review
   (function() {
     let menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", enablePinBeforePopupShowing, false);
