@@ -136,6 +136,9 @@ function findSingleBackgroundImage(aTarget) {
   return null;
 }
 
+let menuItemListener = null;
+let pinBgItemListener = null;
+
 /**
  * Initializes required event handlers
  */
@@ -143,8 +146,17 @@ window.addEventListener("load", function() {
   // Only show the pinning options when it makes sense
   function enablePinBeforePopupShowing(aEvent) {
     let target = document.popupNode;
+
     let menuitem = document.getElementById("pinterest-context-pinit");
     let pinbgitem = document.getElementById("pinterest-context-pinbgimage");
+
+    // Clear old event listeners
+    if (menuItemListener) {
+      menuitem.removeEventListener("command", menuItemListener);
+    }
+    if (pinBgItemListener) {
+      pinbgitem.removeEventListener("command", pinBgItemListener);
+    }
 
     // Don't let users pin something off pinterest, they should probably re-pin
     let currentURI = new Uri(window.content.location.toString());
@@ -160,17 +172,19 @@ window.addEventListener("load", function() {
 
     if (isDirectlyPinnable) {
       // This is bad, have URI parse and re-stringify to prevent code-injection
-      menuitem.addEventListener("command", function() {
+      menuItemListener = function() {
         pinTarget(target.src, target.alt);
-      });
+      };
+      menuitem.addEventListener("command", menuItemListener);
       pinbgitem.hidden = true;
     } else {
       let bgImageURL = findSingleBackgroundImage(target);
       pinbgitem.hidden = !bgImageURL;
       if (bgImageURL) {
-        pinbgitem.addEventListener("command", function() {
+        pinBgItemListener = function() {
           pinTarget(bgImageURL);
-        });
+        };
+        pinbgitem.addEventListener("command", pinBgItemListener);
       }
     }
 
