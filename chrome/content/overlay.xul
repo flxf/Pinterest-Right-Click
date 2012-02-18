@@ -4,9 +4,12 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="pinterest.js" />
   <popup id="contentAreaContextMenu">
+    <menuitem id="pinterest-context-pinbgimage"
+              label="&pinBGImage.label;"
+              insertafter="context-viewbgimage" />
     <menuitem id="pinterest-context-pinit"
               label="&pinIt.label;"
               accesskey="&pinIt.accesskey;"
-              oncommand="pinTarget();" />
+              insertafter="context-copyimage" />
   </popup>
 </overlay>

@@ -1,2 +1,3 @@
-<!ENTITY pinIt.label "Pin It">
+<!ENTITY pinIt.label "Pin Image">
 <!ENTITY pinIt.accesskey "p">
+<!ENTITY pinBGImage.label "Pin Background Image">

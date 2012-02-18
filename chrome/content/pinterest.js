@@ -3,15 +3,9 @@ Components.utils.import("chrome://pinterest-modules/content/Uri.jsm");
 /**
  * Handles the pinning action, fetching parameters from target information
  */
-function pinTarget(aEvent) {
-  let target = document.popupNode;
-  // TODO: Sometimes, we might want to look up the DOM tree for the target
-  if (!(target instanceof HTMLImageElement)) {
-    return;
-  }
-
+function pinTarget(aMediaURI, aAltText) {
   let createURI = new Uri("http://pinterest.com/pin/create/bookmarklet/");
-  let mediaURI = new Uri(target.src);
+  let mediaURI = new Uri(aMediaURI);
 
   // Set the media of the pin
   //
@@ -77,8 +71,8 @@ function pinTarget(aEvent) {
   }
 
   // Set the alt test of the pin.
-  if (target.alt) {
-    createURI.addQueryParam("alt", encodeURIComponent(target.alt));
+  if (aAltText !== undefined && aAltText) {
+    createURI.addQueryParam("alt", aAltText);
   }
 
   // Not sure what Pinterest uses the title for, but let's give it to them
@@ -98,22 +92,88 @@ function pinTarget(aEvent) {
 }
 
 /**
+ * Returns the lowest (DOM-wise) background image for the given target
+ *
+ * @returns a URL string or null
+ */
+function findSingleBackgroundImage(aTarget) {
+  // Bubble up DOM tree looking for a background image
+  while (aTarget) {
+    if (aTarget.nodeType == Node.ELEMENT_NODE) {
+      // Check to find each successive ancestor for a background image
+      let bgImageURL = aTarget.ownerDocument.defaultView
+        .getComputedStyle(aTarget, "").getPropertyCSSValue("background-image");
+
+      // Computed background may yield any number of URIs. If we've found 1,
+      // then we are successful. If we find multiple, we are unable to decide
+      // and we'll give up. If we find none, keep looking.
+      let numBgFound = 0;
+      if (bgImageURL instanceof CSSPrimitiveValue &&
+          bgImageURL.primitiveType == CSSPrimitiveValue.CSS_URI) {
+        numBgFound = 1;
+      } else if (bgImageURL instanceof CSSValueList) {
+        numBgFound = bgImageURL.length;
+        if (bgImageURL.length == 1) {
+          bgImageURL = bgImageURL[0];
+          if (bgImageURL.primitiveType != CSSPrimitiveValue.CSS_URI) {
+            numBgFound = 0;
+          }
+        }
+      }
+
+      if (numBgFound > 1) {
+        return null;
+      } else if (numBgFound == 1) {
+        bgImageURL = bgImageURL.getStringValue();
+        return bgImageURL;
+      }
+    }
+
+    aTarget = aTarget.parentNode;
+  }
+
+  // Nothing found
+  return null;
+}
+
+/**
  * Initializes required event handlers
  */
 window.addEventListener("load", function() {
-  // Only show the "Pin It" when it makes sense
+  // Only show the pinning options when it makes sense
   function enablePinBeforePopupShowing(aEvent) {
+    let target = document.popupNode;
     let menuitem = document.getElementById("pinterest-context-pinit");
+    let pinbgitem = document.getElementById("pinterest-context-pinbgimage");
 
-    // Don't let users pin something off pinterest
+    // Don't let users pin something off pinterest, they should probably re-pin
     let currentURI = new Uri(window.content.location.toString());
     if (/(.+\.)?pinterest.com/.test(currentURI.host())) {
+      pinbgitem.hidden = true;
       menuitem.hidden = true;
       return;
     }
 
     // Only images should be pinnable
-    menuitem.hidden = !(document.popupNode instanceof HTMLImageElement);
+    let isDirectlyPinnable = (target instanceof HTMLImageElement);
+    menuitem.hidden = !isDirectlyPinnable;
+    if (isDirectlyPinnable) {
+      // This is bad, have URI parse and re-stringify to prevent code-injection
+      let targetURL = new Uri(target.src).toString();
+      let targetAlt = encodeURIComponent(target.alt);
+      menuitem.setAttribute("oncommand",
+                            "pinTarget(\"" + targetURL + "\", \"" + targetAlt + "\");");
+      pinbgitem.hidden = true;
+      return;
+    }
+
+    let bgImageURL = findSingleBackgroundImage(target);
+    pinbgitem.hidden = !bgImageURL;
+    if (bgImageURL) {
+      // This is bad, have URI parse and re-stringify to prevent code-injection
+      bgImageURL = new Uri(bgImageURL).toString();
+      pinbgitem.setAttribute("oncommand", "pinTarget(\"" + bgImageURL + "\");");
+    }
   }
 
   let menu = document.getElementById("contentAreaContextMenu");
