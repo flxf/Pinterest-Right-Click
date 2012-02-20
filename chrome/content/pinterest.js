@@ -1,5 +1,3 @@
-Components.utils.import("chrome://pinterest-modules/content/Uri.jsm");
-
 let PinterestAddon = {
   menuItemListener : null,
   pinBgItemListener : null,
@@ -8,8 +6,11 @@ let PinterestAddon = {
    * Handles the pinning action, fetching parameters from target information
    */
   pinTarget : function pinTarget(aMediaURI, aAltText) {
-    let createURI = new Uri("http://pinterest.com/pin/create/bookmarklet/");
-    let mediaURI = new Uri(aMediaURI);
+    let createURI = makeURI("http://pinterest.com/pin/create/bookmarklet/")
+      .QueryInterface(Ci.nsIURL);
+    let mediaURI = makeURI(aMediaURI).QueryInterface(Ci.nsIURL);
+
+    let pinParams = {};
 
     // Set the media of the pin
     //
@@ -22,8 +23,8 @@ let PinterestAddon = {
     // whenever we find them.
 
     // For any static Facebook image only pin the full-size version
-    if (/fbcdn-sphotos.a.akamaihd.net/.test(mediaURI.host())) {
-      let mediaPath = mediaURI.path();
+    if (/fbcdn-sphotos.a.akamaihd.net/.test(mediaURI.host)) {
+      let mediaPath = mediaURI.path;
       if (mediaPath[0] == '/') {
         mediaPath = mediaPath.substr(1);
       }
@@ -41,22 +42,19 @@ let PinterestAddon = {
       pathPieces[pathPieces.length - 1] = fileName;
 
       // Remove resize params
-      let impliedMediaURI;
+      let impliedMediaURI = mediaURI.clone();
       if (pathPieces.length == 2) {
-        impliedMediaURI =
-          mediaURI.clone().setPath("/" + pathPieces.join("/"));
+        impliedMediaURI.path = "/" + pathPieces.join("/");
       } else if (pathPieces.length == 3) {
-        impliedMediaURI =
-          mediaURI.clone().setPath("/" + pathPieces[0] + "/" + pathPieces[2]);
+        impliedMediaURI.path = "/" + pathPieces[0] + "/" + pathPieces[2];
       } else {
         // TODO: Report error of some sort, bail for now
         return;
       }
 
-      createURI.addQueryParam("media",
-        encodeURIComponent(impliedMediaURI.toString()));
+      pinParams.media = encodeURIComponent(impliedMediaURI.resolve(""));
     } else {
-      createURI.addQueryParam("media", encodeURIComponent(mediaURI.toString()));
+      pinParams.media = encodeURIComponent(mediaURI.resolve(""));
     }
 
     // Set the page linked to the pin.
@@ -66,33 +64,40 @@ let PinterestAddon = {
     //
     // Warning: This code sucks because it relies on us to create edge-cases
     // whenever we find them.
-    let currentURI = new Uri(window.content.location.toString());
-    if (/(www\.)?facebook.com/.test(currentURI.host())) {
-      createURI.addQueryParam("url",
-        encodeURIComponent(createURI.getQueryParamValue("media")));
+    let currentLocation = window.content.location;
+    if (/(www\.)?facebook.com/.test(currentLocation.host)) {
+      pinParams.url = encodeURIComponent(pinParams.media);
     } else {
-      createURI.addQueryParam("url", encodeURIComponent(currentURI.toString()));
+      pinParams.url = encodeURIComponent(currentLocation.href);
     }
 
     // Set the alt test of the pin.
     if (aAltText !== undefined && aAltText) {
-      createURI.addQueryParam("alt", encodeURIComponent(aAltText));
+      pinParams.alt = encodeURIComponent(aAltText);
     }
 
     // Not sure what Pinterest uses the title for, but let's give it to them
     let pageTitle = window.content.document.title;
     if (pageTitle) {
-      createURI.addQueryParam("title", encodeURIComponent(pageTitle));
+      pinParams.title = encodeURIComponent(pageTitle);
     }
 
     // TODO: We don't yet support video pins
-    createURI.addQueryParam("is_video", "false");
+    pinParams.is_video = "false";
+
+    // Convert params to query string and append it to create uri
+    let paramList = [];
+    for (let key in pinParams) {
+      paramList.push(key + "=" + pinParams[key]);
+    }
+    let queryString = "?" + paramList.join("&");
+    createURI.query = queryString;
 
     // Open the create pin dialog
     let createDialogAttributes =
       "status=no,resizable=no,scrollbars=yes,personalbar=no,directories=no," +
       "location=yes,toolbar=no,menubar=no,width=632,height=270,left=0,top=0";
-    window.open(createURI.toString(), "", createDialogAttributes);
+    window.open(createURI.resolve(""), "", createDialogAttributes);
   },
 
   /**
@@ -163,8 +168,8 @@ window.addEventListener("load", function() {
     }
 
     // Don't let users pin something off pinterest, they should probably re-pin
-    let currentURI = new Uri(window.content.location.toString());
-    if (/(.+\.)?pinterest.com/.test(currentURI.host())) {
+    let currentLocation = window.content.location;
+    if (/(.+\.)?pinterest.com/.test(currentLocation.host)) {
       pinbgitem.hidden = true;
       menuitem.hidden = true;
       return;
