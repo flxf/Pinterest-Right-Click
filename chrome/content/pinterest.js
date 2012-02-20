@@ -160,15 +160,6 @@ window.addEventListener("load", function() {
     pinbgitem.hidden = true;
     menuitem.hidden = true;
 
-    // Clear old event listeners
-    if (PinterestAddon.menuItemListener) {
-      menuitem.removeEventListener("command", PinterestAddon.menuItemListener);
-    }
-    if (PinterestAddon.pinBgItemListener) {
-      pinbgitem.removeEventListener("command",
-        PinterestAddon.pinBgItemListener);
-    }
-
     // Don't let users pin something off pinterest, they should probably re-pin
     let currentLocation = window.content.location;
     if (/(.+\.)?pinterest.com/.test(currentLocation.host)) {
@@ -209,9 +200,25 @@ window.addEventListener("load", function() {
     menuitem = null;
   }
 
+  function hidingCleanup() {
+    let menuitem = document.getElementById("pinterest-context-pinit");
+    let pinbgitem = document.getElementById("pinterest-context-pinbgimage");
+
+    // Clear old event listeners
+    if (PinterestAddon.menuItemListener) {
+      menuitem.removeEventListener("command", PinterestAddon.menuItemListener);
+      PinterestAddon.menuItemListener = null;
+    }
+    if (PinterestAddon.pinBgItemListener) {
+      pinbgitem.removeEventListener("command", PinterestAddon.pinBgItemListener);
+      PinterestAddon.pinBgItemListener = null;
+    }
+  }
+
   // Avoid circular-reference created by closure
   (function() {
     let menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", enablePinBeforePopupShowing, false);
+    menu.addEventListener("popuphiding", hidingCleanup, false);
   })();
 }, false);
