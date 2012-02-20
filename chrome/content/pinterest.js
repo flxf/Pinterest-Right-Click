@@ -176,24 +176,33 @@ window.addEventListener("load", function() {
     }
 
     // Only images should be pinnable
-    let isDirectlyPinnable = (target instanceof HTMLImageElement);
-    menuitem.hidden = !isDirectlyPinnable;
+    // TODO: Cleanup this code
+    if (target instanceof HTMLImageElement) {
+      let targetSrc = makeURI(target.src);
 
-    if (isDirectlyPinnable) {
-      // This is bad, have URI parse and re-stringify to prevent code-injection
-      PinterestAddon.menuItemListener = function() {
-        PinterestAddon.pinTarget(target.src, target.alt);
-      };
-      menuitem.addEventListener("command", PinterestAddon.menuItemListener);
-      pinbgitem.hidden = true;
-    } else {
-      let bgImageURL = PinterestAddon.findBackgroundImage(target);
-      pinbgitem.hidden = !bgImageURL;
-      if (bgImageURL) {
-        PinterestAddon.pinBgItemListener = function() {
-          PinterestAddon.pinTarget(bgImageURL);
+      // TODO: Investigate whether we can get something for non-http
+      if (targetSrc.schemeIs("http") || targetSrc.schemeIs("https")) {
+        menuitem.hidden = false;
+        pinbgitem.hidden = true;
+
+        PinterestAddon.menuItemListener = function() {
+          PinterestAddon.pinTarget(target.src, target.alt);
         };
-        pinbgitem.addEventListener("command", PinterestAddon.pinBgItemListener);
+        menuitem.addEventListener("command", PinterestAddon.menuItemListener);
+      }
+    } else {
+      let bgImageSrc = PinterestAddon.findBackgroundImage(target);
+      if (bgImageSrc) {
+        let bgImageURL = makeURI(bgImageSrc);
+        if (bgImageURL.schemeIs("http") || bgImageURL.schemeIs("https")) {
+          pinbgitem.hidden = false;
+          menuitem.hidden = true;
+
+          PinterestAddon.pinBgItemListener = function() {
+            PinterestAddon.pinTarget(bgImageSrc);
+          };
+          pinbgitem.addEventListener("command", PinterestAddon.pinBgItemListener);
+        }
       }
     }
 
