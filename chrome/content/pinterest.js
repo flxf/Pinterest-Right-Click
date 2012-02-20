@@ -157,6 +157,8 @@ window.addEventListener("load", function() {
 
     let menuitem = document.getElementById("pinterest-context-pinit");
     let pinbgitem = document.getElementById("pinterest-context-pinbgimage");
+    pinbgitem.hidden = true;
+    menuitem.hidden = true;
 
     // Clear old event listeners
     if (PinterestAddon.menuItemListener) {
@@ -170,8 +172,6 @@ window.addEventListener("load", function() {
     // Don't let users pin something off pinterest, they should probably re-pin
     let currentLocation = window.content.location;
     if (/(.+\.)?pinterest.com/.test(currentLocation.host)) {
-      pinbgitem.hidden = true;
-      menuitem.hidden = true;
       return;
     }
 
@@ -183,7 +183,6 @@ window.addEventListener("load", function() {
       // TODO: Investigate whether we can get something for non-http
       if (targetSrc.schemeIs("http") || targetSrc.schemeIs("https")) {
         menuitem.hidden = false;
-        pinbgitem.hidden = true;
 
         PinterestAddon.menuItemListener = function() {
           PinterestAddon.pinTarget(target.src, target.alt);
@@ -196,7 +195,6 @@ window.addEventListener("load", function() {
         let bgImageURL = makeURI(bgImageSrc);
         if (bgImageURL.schemeIs("http") || bgImageURL.schemeIs("https")) {
           pinbgitem.hidden = false;
-          menuitem.hidden = true;
 
           PinterestAddon.pinBgItemListener = function() {
             PinterestAddon.pinTarget(bgImageSrc);
