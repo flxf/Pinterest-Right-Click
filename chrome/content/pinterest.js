@@ -1,4 +1,4 @@
-let PinterestAddon = {
+var PinterestAddon = {
   menuItemListener : null,
   pinBgItemListener : null,
 

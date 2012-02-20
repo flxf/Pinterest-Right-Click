@@ -1,5 +1,5 @@
-overlay chrome://browser/content/browser.xul chrome://pinterest/content/overlay.xul
+overlay chrome://browser/content/browser.xul chrome://pinterest-context/content/overlay.xul
 
-content pinterest         chrome/content/
+content pinterest-context         chrome/content/
 
-locale  pinterest en-US   chrome/locale/en-US/
+locale  pinterest-context en-US   chrome/locale/en-US/

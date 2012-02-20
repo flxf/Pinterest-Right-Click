@@ -4,7 +4,7 @@
   <Description about="urn:mozilla:install-manifest">
     <em:id>pinterest-addon@felixfung.ca</em:id>
     <em:name>Unofficial Pinterest Add-On</em:name>
-    <em:version>2012.02.18.0</em:version>
+    <em:version>2012.02.20.0</em:version>
     <em:type>2</em:type>
     <em:creator>Felix Fung</em:creator>
     <em:description>Adds an option create pins from the right-clicking images or other media.</em:description>
