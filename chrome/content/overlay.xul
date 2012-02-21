@@ -2,7 +2,7 @@
 <!DOCTYPE overlay SYSTEM "chrome://pinterest-context/locale/pinterest.dtd">
 <overlay id="pinterest-context-overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <script type="application/javascript" src="pinterest.js" />
+  <script type="application/javascript" src="pinterest_context.js" />
   <popup id="contentAreaContextMenu">
     <menuitem id="pinterest-context-pinbgimage"
               label="&pinBGImage.label;"

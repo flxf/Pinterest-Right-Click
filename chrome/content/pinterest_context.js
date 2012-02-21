@@ -1,4 +1,4 @@
-var PinterestAddon = {
+var PinterestContext = {
   menuItemListener : null,
   pinBgItemListener : null,
 
@@ -175,22 +175,22 @@ window.addEventListener("load", function() {
       if (targetSrc.schemeIs("http") || targetSrc.schemeIs("https")) {
         menuitem.hidden = false;
 
-        PinterestAddon.menuItemListener = function() {
-          PinterestAddon.pinTarget(target.src, target.alt);
+        PinterestContext.menuItemListener = function() {
+          PinterestContext.pinTarget(target.src, target.alt);
         };
-        menuitem.addEventListener("command", PinterestAddon.menuItemListener);
+        menuitem.addEventListener("command", PinterestContext.menuItemListener);
       }
     } else {
-      let bgImageSrc = PinterestAddon.findBackgroundImage(target);
+      let bgImageSrc = PinterestContext.findBackgroundImage(target);
       if (bgImageSrc) {
         let bgImageURL = makeURI(bgImageSrc);
         if (bgImageURL.schemeIs("http") || bgImageURL.schemeIs("https")) {
           pinbgitem.hidden = false;
 
-          PinterestAddon.pinBgItemListener = function() {
-            PinterestAddon.pinTarget(bgImageSrc);
+          PinterestContext.pinBgItemListener = function() {
+            PinterestContext.pinTarget(bgImageSrc);
           };
-          pinbgitem.addEventListener("command", PinterestAddon.pinBgItemListener);
+          pinbgitem.addEventListener("command", PinterestContext.pinBgItemListener);
         }
       }
     }
@@ -205,13 +205,13 @@ window.addEventListener("load", function() {
     let pinbgitem = document.getElementById("pinterest-context-pinbgimage");
 
     // Clear old event listeners
-    if (PinterestAddon.menuItemListener) {
-      menuitem.removeEventListener("command", PinterestAddon.menuItemListener);
-      PinterestAddon.menuItemListener = null;
+    if (PinterestContext.menuItemListener) {
+      menuitem.removeEventListener("command", PinterestContext.menuItemListener);
+      PinterestContext.menuItemListener = null;
     }
-    if (PinterestAddon.pinBgItemListener) {
-      pinbgitem.removeEventListener("command", PinterestAddon.pinBgItemListener);
-      PinterestAddon.pinBgItemListener = null;
+    if (PinterestContext.pinBgItemListener) {
+      pinbgitem.removeEventListener("command", PinterestContext.pinBgItemListener);
+      PinterestContext.pinBgItemListener = null;
     }
   }
 
