@@ -1,6 +1,9 @@
 var PinterestContext = {
-  menuItemListener : null,
-  pinBgItemListener : null,
+  /**
+   * Keeps track of displayed context menu items and their event handlers so
+   * that they can be cleaned up when the context menu gets hidden.
+   */
+  activeMenuHandlers : [],
 
   /**
    * Handles the pinning action, fetching parameters from target information
@@ -151,14 +154,48 @@ var PinterestContext = {
  * Initializes required event handlers
  */
 window.addEventListener("load", function() {
-  // Only show the pinning options when it makes sense
-  function enablePinBeforePopupShowing(aEvent) {
-    let target = document.popupNode;
+  /**
+   * Show and create handler for a pinning option represented by aMenuItem
+   */
+  function addMenuItem(aMenuItem, aTargetSource, aAltText) {
+    let targetURI = makeURI(aTargetSource);
+    // TODO: Investigate whether we can get something for non-http
+    if (!targetURI.schemeIs("http") && !targetURI.schemeIs("https")) {
+      return false;
+    }
 
-    let menuitem = document.getElementById("pinterest-context-pinit");
-    let pinbgitem = document.getElementById("pinterest-context-pinbgimage");
-    pinbgitem.hidden = true;
-    menuitem.hidden = true;
+    aMenuItem.hidden = false;
+    let menuItemListener = function() {
+      PinterestContext.pinTarget(aTargetSource, aAltText);
+    };
+    aMenuItem.addEventListener("command", menuItemListener);
+
+    PinterestContext.activeMenuHandlers.push({
+      item : aMenuItem,
+      listener : menuItemListener
+    });
+    aMenuItem = null;
+    return true;
+  }
+
+  /**
+   * Hides pinning options by default and clean up listeners when popup closes
+   */
+  function unloadMenuItems() {
+    let activeMenuHandlers = PinterestContext.activeMenuHandlers;
+    for (let i = 0, len = activeMenuHandlers.length; i < len; i++) {
+      let menuHandler = activeMenuHandlers[i];
+      menuHandler.item.hidden = true;
+      menuHandler.item.removeEventListener("command", menuHandler.listener);
+    }
+    PinterestContext.activeMenuHandlers = [];
+  }
+
+  /**
+   * Configures the context menu to show pinning options when it makes sense
+   */
+  function onPopupShowing(aEvent) {
+    let target = document.popupNode;
 
     // Don't let users pin something off pinterest, they should probably re-pin
     let currentLocation = window.content.location;
@@ -166,59 +203,23 @@ window.addEventListener("load", function() {
       return;
     }
 
-    // Only images should be pinnable
-    // TODO: Cleanup this code
     if (target instanceof HTMLImageElement) {
-      let targetSrc = makeURI(target.src);
-
-      // TODO: Investigate whether we can get something for non-http
-      if (targetSrc.schemeIs("http") || targetSrc.schemeIs("https")) {
-        menuitem.hidden = false;
-
-        PinterestContext.menuItemListener = function() {
-          PinterestContext.pinTarget(target.src, target.alt);
-        };
-        menuitem.addEventListener("command", PinterestContext.menuItemListener);
-      }
+      addMenuItem(
+        document.getElementById("pinterest-context-pinit"),
+        target.src,
+        target.alt);
     } else {
       let bgImageSrc = PinterestContext.findBackgroundImage(target);
-      if (bgImageSrc) {
-        let bgImageURL = makeURI(bgImageSrc);
-        if (bgImageURL.schemeIs("http") || bgImageURL.schemeIs("https")) {
-          pinbgitem.hidden = false;
-
-          PinterestContext.pinBgItemListener = function() {
-            PinterestContext.pinTarget(bgImageSrc);
-          };
-          pinbgitem.addEventListener("command", PinterestContext.pinBgItemListener);
-        }
-      }
-    }
-
-    // Break circular references
-    pinbgitem = null;
-    menuitem = null;
-  }
-
-  function hidingCleanup() {
-    let menuitem = document.getElementById("pinterest-context-pinit");
-    let pinbgitem = document.getElementById("pinterest-context-pinbgimage");
-
-    // Clear old event listeners
-    if (PinterestContext.menuItemListener) {
-      menuitem.removeEventListener("command", PinterestContext.menuItemListener);
-      PinterestContext.menuItemListener = null;
-    }
-    if (PinterestContext.pinBgItemListener) {
-      pinbgitem.removeEventListener("command", PinterestContext.pinBgItemListener);
-      PinterestContext.pinBgItemListener = null;
+      addMenuItem(
+        document.getElementById("pinterest-context-pinbgimage"),
+        bgImageSrc);
     }
   }
 
   // Avoid circular-reference created by closure
   (function() {
     let menu = document.getElementById("contentAreaContextMenu");
-    menu.addEventListener("popupshowing", enablePinBeforePopupShowing, false);
-    menu.addEventListener("popuphiding", hidingCleanup, false);
+    menu.addEventListener("popupshowing", onPopupShowing, false);
+    menu.addEventListener("popuphiding", unloadMenuItems, false);
   })();
 }, false);

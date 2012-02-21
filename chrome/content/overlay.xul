@@ -6,10 +6,12 @@
   <popup id="contentAreaContextMenu">
     <menuitem id="pinterest-context-pinbgimage"
               label="&pinBGImage.label;"
-              insertafter="context-viewbgimage" />
+              insertafter="context-viewbgimage"
+              hidden="true" />
     <menuitem id="pinterest-context-pinit"
               label="&pinIt.label;"
               accesskey="&pinIt.accesskey;"
-              insertafter="context-copyimage" />
+              insertafter="context-copyimage"
+              hidden="true" />
   </popup>
 </overlay>
