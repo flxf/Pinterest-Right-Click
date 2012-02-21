@@ -1,10 +1,108 @@
-var PinterestContext = {
+var pinterestrc = (pinterestrc) ? pinterestrc : {};
+
+pinterestrc.MenuController = (function() {
   /**
    * Keeps track of displayed context menu items and their event handlers so
    * that they can be cleaned up when the context menu gets hidden.
    */
-  activeMenuHandlers : [],
+  let activeMenuHandlers = [];
 
+  /**
+   * Show and create handler for a pinning option represented by aMenuItem
+   */
+  let addMenuItem = function addMenuItem(aMenuItem, aTargetSource, aAltText) {
+    let targetURI = makeURI(aTargetSource);
+    // TODO: Investigate whether we can get something for non-http
+    if (!targetURI.schemeIs("http") && !targetURI.schemeIs("https")) {
+      return false;
+    }
+
+    aMenuItem.hidden = false;
+    let menuItemListener = function() {
+      pinterestrc.PinterestContext.pinTarget(aTargetSource, aAltText);
+    };
+    aMenuItem.addEventListener("command", menuItemListener);
+
+    activeMenuHandlers.push({
+      item : aMenuItem,
+      listener : menuItemListener
+    });
+    aMenuItem = null;
+    return true;
+  };
+
+  /**
+   * Hides pinning options by default and clean up listeners when popup closes
+   */
+  let unloadMenuItems = function unloadMenuItems() {
+    for (let i = 0, len = activeMenuHandlers.length; i < len; i++) {
+      let menuHandler = activeMenuHandlers[i];
+      menuHandler.item.hidden = true;
+      menuHandler.item.removeEventListener("command", menuHandler.listener);
+    }
+    activeMenuHandlers = [];
+  };
+
+  return {
+    addMenuItem : addMenuItem,
+    unloadMenuItems : unloadMenuItems
+  };
+})();
+
+pinterestrc.SiteServicesController = (function() {
+  let PinterestService = {
+    handle : function pinterestServiceHandle(aTarget) {
+      // Do nothing
+    }
+  };
+
+  let YouTubeService = {
+    handle : function youtubeServiceHandle(aTarget) {
+      // Do nothing
+    }
+  };
+
+  let DefaultService = {
+    handle : function defaultServiceHandler(aTarget) {
+      if (aTarget instanceof HTMLImageElement) {
+        pinterestrc.MenuController.addMenuItem(
+          document.getElementById("pinterest-context-pinit"),
+          aTarget.src,
+          aTarget.alt);
+      } else {
+        let bgImageSrc = pinterestrc.PinterestContext.findBackgroundImage(aTarget);
+        if (bgImageSrc) {
+          pinterestrc.MenuController.addMenuItem(
+            document.getElementById("pinterest-context-pinbgimage"),
+            bgImageSrc);
+        }
+      }
+    }
+  };
+
+  let ServicesMap = [
+    { k : /^https?:\/\/(www\.)?pinterest.com/, v : PinterestService },
+    { k : /^https?:\/\/(www\.)?youtube.com/, v : YouTubeService },
+    // Default
+    { k : /./, v : DefaultService }
+  ];
+
+  return {
+    handleLocation : function handleLocation(aLocation, aTarget) {
+      let locationString = aLocation.toString();
+      for (let i = 0, len = ServicesMap.length; i < len; i++) {
+        if (ServicesMap[i].k.test(locationString)) {
+          ServicesMap[i].v.handle(aTarget);
+          return;
+        }
+      }
+
+      // This should never happen
+    }
+  };
+})();
+
+pinterestrc.PinterestContext = {
   /**
    * Handles the pinning action, fetching parameters from target information
    */
@@ -155,71 +253,19 @@ var PinterestContext = {
  */
 window.addEventListener("load", function() {
   /**
-   * Show and create handler for a pinning option represented by aMenuItem
-   */
-  function addMenuItem(aMenuItem, aTargetSource, aAltText) {
-    let targetURI = makeURI(aTargetSource);
-    // TODO: Investigate whether we can get something for non-http
-    if (!targetURI.schemeIs("http") && !targetURI.schemeIs("https")) {
-      return false;
-    }
-
-    aMenuItem.hidden = false;
-    let menuItemListener = function() {
-      PinterestContext.pinTarget(aTargetSource, aAltText);
-    };
-    aMenuItem.addEventListener("command", menuItemListener);
-
-    PinterestContext.activeMenuHandlers.push({
-      item : aMenuItem,
-      listener : menuItemListener
-    });
-    aMenuItem = null;
-    return true;
-  }
-
-  /**
-   * Hides pinning options by default and clean up listeners when popup closes
-   */
-  function unloadMenuItems() {
-    let activeMenuHandlers = PinterestContext.activeMenuHandlers;
-    for (let i = 0, len = activeMenuHandlers.length; i < len; i++) {
-      let menuHandler = activeMenuHandlers[i];
-      menuHandler.item.hidden = true;
-      menuHandler.item.removeEventListener("command", menuHandler.listener);
-    }
-    PinterestContext.activeMenuHandlers = [];
-  }
-
-  /**
    * Configures the context menu to show pinning options when it makes sense
    */
   function onPopupShowing(aEvent) {
     let target = document.popupNode;
-
-    // Don't let users pin something off pinterest, they should probably re-pin
     let currentLocation = window.content.location;
-    if (/(.+\.)?pinterest.com/.test(currentLocation.host)) {
-      return;
-    }
-
-    if (target instanceof HTMLImageElement) {
-      addMenuItem(
-        document.getElementById("pinterest-context-pinit"),
-        target.src,
-        target.alt);
-    } else {
-      let bgImageSrc = PinterestContext.findBackgroundImage(target);
-      addMenuItem(
-        document.getElementById("pinterest-context-pinbgimage"),
-        bgImageSrc);
-    }
+    pinterestrc.SiteServicesController.handleLocation(currentLocation, target);
   }
 
   // Avoid circular-reference created by closure
   (function() {
     let menu = document.getElementById("contentAreaContextMenu");
     menu.addEventListener("popupshowing", onPopupShowing, false);
-    menu.addEventListener("popuphiding", unloadMenuItems, false);
+    menu.addEventListener(
+      "popuphiding", pinterestrc.MenuController.unloadMenuItems, false);
   })();
 }, false);
