@@ -13,5 +13,8 @@
               accesskey="&pinIt.accesskey;"
               insertafter="context-copyimage"
               hidden="true" />
+    <menuitem id="pinterest-context-pinyoutube"
+              label="&pinYouTube.label;"
+              hidden="true" />
   </popup>
 </overlay>

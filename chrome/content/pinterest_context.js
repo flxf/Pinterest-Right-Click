@@ -51,19 +51,62 @@ pinterestrc.MenuController = (function() {
 
 pinterestrc.SiteServicesController = (function() {
   let PinterestService = {
-    handle : function pinterestServiceHandle(aTarget) {
+    handle : function pinterestServiceHandle(aLocation, aTarget) {
       // Do nothing
     }
   };
 
   let YouTubeService = {
-    handle : function youtubeServiceHandle(aTarget) {
-      // Do nothing
+    handle : function youtubeServiceHandle(aLocation, aTarget) {
+      if (aTarget instanceof HTMLImageElement) {
+        let targetURI = makeURI(aTarget.src);
+        let menuitem;
+
+        // Determine if we're pinning a video thumbnail
+        //
+        // Note: We're relying on urls to be generated a certain way so this is
+        // rather sketchy.
+        if (/^\/?vi\//.test(targetURI.path)) {
+          menuitem = document.getElementById("pinterest-context-pinyoutube");
+        } else {
+          menuitem = document.getElementById("pinterest-context-pinit");
+        }
+
+        pinterestrc.MenuController.addMenuItem(
+          menuitem, aTarget.src, aTarget.alt);
+      } else {
+        // We assume there are no interesting background images on YouTube and
+        // instead give the option to pin the current video if one exists.
+
+        let locationURI = makeURI(aLocation).QueryInterface(Ci.nsIURL);
+        if (/^\/watch/.test(locationURI.filePath)) {
+          // User is on a YouTube video page, extract the video id from the URL
+          // so that the video can be pinned.
+          let queryParams = locationURI.query.split("&");
+          for (let i = 0, len = queryParams.length; i < len; i++) {
+            let [ key, value ] = queryParams[i].split("=");
+            if (key == "v") {
+              // Construct the thumbnail URL
+              //
+              // NOTE: This is obviously sketchy. For performance reasons, I
+              // don't want to make an API request so I'll live with it.
+              let thumbnailURL =
+                "http://img.youtube.com/vi/" + value + "/0.jpg";
+
+              pinterestrc.MenuController.addMenuItem(
+                document.getElementById("pinterest-context-pinyoutube"),
+                thumbnailURL,
+                window.content.document.title);
+              break;
+            }
+          }
+        }
+      }
     }
   };
 
   let DefaultService = {
-    handle : function defaultServiceHandler(aTarget) {
+    handle : function defaultServiceHandler(aLocation, aTarget) {
       if (aTarget instanceof HTMLImageElement) {
         pinterestrc.MenuController.addMenuItem(
           document.getElementById("pinterest-context-pinit"),
@@ -82,7 +125,8 @@ pinterestrc.SiteServicesController = (function() {
 
   let ServicesMap = [
     { k : /^https?:\/\/(www\.)?pinterest.com/, v : PinterestService },
-    { k : /^https?:\/\/(www\.)?youtube.com/, v : YouTubeService },
+    { k : /^https?:\/\/((www\.)|(img\.))?youtube.com/, v : YouTubeService },
+    { k : /^https?:\/\/[^\.]+\.ytimg.com/, v : YouTubeService },
     // Default
     { k : /./, v : DefaultService }
   ];
@@ -92,7 +136,7 @@ pinterestrc.SiteServicesController = (function() {
       let locationString = aLocation.toString();
       for (let i = 0, len = ServicesMap.length; i < len; i++) {
         if (ServicesMap[i].k.test(locationString)) {
-          ServicesMap[i].v.handle(aTarget);
+          ServicesMap[i].v.handle(aLocation, aTarget);
           return;
         }
       }
