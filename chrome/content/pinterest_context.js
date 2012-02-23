@@ -10,8 +10,8 @@ pinterestrc.MenuController = (function() {
   /**
    * Show and create handler for a pinning option represented by aMenuItem
    */
-  let addMenuItem = function addMenuItem(aMenuItem, aTargetSource, aAltText) {
-    let targetURI = makeURI(aTargetSource);
+  let addMenuItem = function addMenuItem(aMenuItem, aDict) {
+    let targetURI = makeURI(aDict.media);
     // TODO: Investigate whether we can get something for non-http
     if (!targetURI.schemeIs("http") && !targetURI.schemeIs("https")) {
       return false;
@@ -19,7 +19,7 @@ pinterestrc.MenuController = (function() {
 
     aMenuItem.hidden = false;
     let menuItemListener = function() {
-      pinterestrc.PinterestContext.pinTarget(aTargetSource, aAltText);
+      pinterestrc.PinterestContext.pinTarget(aDict);
     };
     aMenuItem.addEventListener("command", menuItemListener);
 
@@ -73,7 +73,12 @@ pinterestrc.SiteServicesController = (function() {
         }
 
         pinterestrc.MenuController.addMenuItem(
-          menuitem, aTarget.src, aTarget.alt);
+          menuitem,
+          {
+            media : aTarget.src,
+            is_video : true
+            // TODO: Do better than intentionally leave out the alt text
+          });
       } else {
         // We assume there are no interesting background images on YouTube and
         // instead give the option to pin the current video if one exists.
@@ -95,8 +100,11 @@ pinterestrc.SiteServicesController = (function() {
 
               pinterestrc.MenuController.addMenuItem(
                 document.getElementById("pinterest-context-pinyoutube"),
-                thumbnailURL,
-                window.content.document.title);
+                {
+                  media : thumbnailURL,
+                  alt : window.content.document.title,
+                  is_video : true
+                });
               break;
             }
           }
@@ -110,14 +118,18 @@ pinterestrc.SiteServicesController = (function() {
       if (aTarget instanceof HTMLImageElement) {
         pinterestrc.MenuController.addMenuItem(
           document.getElementById("pinterest-context-pinit"),
-          aTarget.src,
-          aTarget.alt);
+          {
+            media : aTarget.src,
+            alt : aTarget.alt
+          });
       } else {
         let bgImageSrc = pinterestrc.PinterestContext.findBackgroundImage(aTarget);
         if (bgImageSrc) {
           pinterestrc.MenuController.addMenuItem(
             document.getElementById("pinterest-context-pinbgimage"),
-            bgImageSrc);
+            {
+              media : aTarget.src
+            });
         }
       }
     }
@@ -150,10 +162,10 @@ pinterestrc.PinterestContext = {
   /**
    * Handles the pinning action, fetching parameters from target information
    */
-  pinTarget : function pinTarget(aMediaURI, aAltText) {
+  pinTarget : function pinTarget(aDict) {
     let createURI = makeURI("http://pinterest.com/pin/create/bookmarklet/")
       .QueryInterface(Ci.nsIURL);
-    let mediaURI = makeURI(aMediaURI).QueryInterface(Ci.nsIURL);
+    let mediaURI = makeURI(aDict.media).QueryInterface(Ci.nsIURL);
 
     let pinParams = {};
 
@@ -217,8 +229,8 @@ pinterestrc.PinterestContext = {
     }
 
     // Set the alt test of the pin.
-    if (aAltText !== undefined && aAltText) {
-      pinParams.alt = encodeURIComponent(aAltText);
+    if (aDict.alt !== undefined && aDict.alt) {
+      pinParams.alt = encodeURIComponent(aDict.alt);
     }
 
     // Not sure what Pinterest uses the title for, but let's give it to them
@@ -227,8 +239,7 @@ pinterestrc.PinterestContext = {
       pinParams.title = encodeURIComponent(pageTitle);
     }
 
-    // TODO: We don't yet support video pins
-    pinParams.is_video = "false";
+    pinParams.is_video = (aDict.is_video !== undefined && aDict.is_video);
 
     // Convert params to query string and append it to create uri
     let paramList = [];
