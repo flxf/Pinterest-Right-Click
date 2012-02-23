@@ -49,6 +49,11 @@ pinterestrc.MenuController = (function() {
   };
 })();
 
+// We are breaking the semantics of pin what you target. When targeting
+// certain images, most commonly thumbnails of a larger image, it's implied
+// that the user wanted the original. Pinterest does this with video preview
+// images on youtube, pinning the video instead.
+
 pinterestrc.SiteServicesController = (function() {
   let PinterestService = {
     handle : function pinterestServiceHandle(aLocation, aTarget) {
@@ -113,6 +118,56 @@ pinterestrc.SiteServicesController = (function() {
     }
   };
 
+  let FacebookService = {
+    handle : function facebookServiceHandler(aLocation, aTarget) {
+      let menuitem;
+      let targetURI;
+      let targetDict = {};
+
+      if (aTarget instanceof HTMLImageElement) {
+        targetDict.media = aTarget.src;
+        targetDict.alt = aTarget.alt;
+      } else {
+        targetDict.media = pinterestrc.PinterestContext.findBackgroundImage(aTarget);
+        if (!targetDict.media) {
+          return;
+        }
+      }
+
+      let targetURI = makeURI(targetDict.media);
+
+      // For any Facebook photo, only pin the full-size version
+      if (/fbcdn-sphotos.a.akamaihd.net/.test(targetURI.host)) {
+        // A static image URL looks something like:
+        // fbcdn.blah.akamai.net/<cdn_node>/<resize_params>/<fileid>_<filesize>.jpg
+        //
+        // We'll remove any resize_params if they exist and specify the filesize to
+        // be the largest size guaranteed to be available in an upload.
+        let pathPieces = targetURI.path.split("/");
+        let cdnNode = pathPieces[1];
+        let fileName = pathPieces[pathPieces.length - 1];
+
+        // Change file size
+        fileName.replace(/_.\.jpg$/i, "_n.jpg");
+
+        // Discard resize params
+        // TODO: Have a safer fallback
+        targetURI.path = "/" + cdnNode + "/" + fileName;
+
+        targetDict.media = targetURI.resolve("");
+      }
+
+      // Linking to Facebook won't lead back to the pin, so we'll avoid it by
+      // linking right back to the image. Awful, I know.
+      targetDict.url = targetDict.media;
+
+      // Recognize all Facebook images as foreground images
+      pinterestrc.MenuController.addMenuItem(
+        document.getElementById("pinterest-context-pinit"),
+        targetDict);
+    }
+  };
+
   let DefaultService = {
     handle : function defaultServiceHandler(aLocation, aTarget) {
       if (aTarget instanceof HTMLImageElement) {
@@ -124,11 +179,12 @@ pinterestrc.SiteServicesController = (function() {
           });
       } else {
         let bgImageSrc = pinterestrc.PinterestContext.findBackgroundImage(aTarget);
+
         if (bgImageSrc) {
           pinterestrc.MenuController.addMenuItem(
             document.getElementById("pinterest-context-pinbgimage"),
             {
-              media : aTarget.src
+              media : bgImageSrc
             });
         }
       }
@@ -139,6 +195,8 @@ pinterestrc.SiteServicesController = (function() {
     { k : /^https?:\/\/(www\.)?pinterest.com/, v : PinterestService },
     { k : /^https?:\/\/((www\.)|(img\.))?youtube.com/, v : YouTubeService },
     { k : /^https?:\/\/[^\.]+\.ytimg.com/, v : YouTubeService },
+    { k : /^https?:\/\/(www\.)?facebook.com/, v : FacebookService },
+    { k : /^https?:\/\/fbcdn-sphotos.a.akamaihd.net/, v : FacebookService },
     // Default
     { k : /./, v : DefaultService }
   ];
@@ -169,63 +227,12 @@ pinterestrc.PinterestContext = {
 
     let pinParams = {};
 
-    // Set the media of the pin
-    //
-    // We are breaking the semantics of pin what you target. When targeting
-    // certain images, most commonly thumbnails of a larger image, it's implied
-    // that the user wanted the original. Pinterest does this with video preview
-    // images on youtube, pinning the video instead.
-    //
-    // Warning: This code sucks because it relies on us to create edge-cases
-    // whenever we find them.
+    pinParams.media = encodeURIComponent(mediaURI.resolve(""));
 
-    // For any static Facebook image only pin the full-size version
-    if (/fbcdn-sphotos.a.akamaihd.net/.test(mediaURI.host)) {
-      let mediaPath = mediaURI.path;
-      if (mediaPath[0] == '/') {
-        mediaPath = mediaPath.substr(1);
-      }
-
-      // A static image URL looks something like:
-      // fbcdn.blah.akamai.net/<cdn_node>/<resize_params>/<fileid>_<filesize>.jpg
-      //
-      // We'll remove any resize_params if they exist and specify the filesize to
-      // be the largest size guaranteed to be available in an upload.
-      let pathPieces = mediaPath.split("/");
-
-      // Change file size
-      let fileName = pathPieces[pathPieces.length - 1];
-      fileName.replace(/_.\.jpg$/i, "_n.jpg");
-      pathPieces[pathPieces.length - 1] = fileName;
-
-      // Remove resize params
-      let impliedMediaURI = mediaURI.clone();
-      if (pathPieces.length == 2) {
-        impliedMediaURI.path = "/" + pathPieces.join("/");
-      } else if (pathPieces.length == 3) {
-        impliedMediaURI.path = "/" + pathPieces[0] + "/" + pathPieces[2];
-      } else {
-        // TODO: Report error of some sort, bail for now
-        return;
-      }
-
-      pinParams.media = encodeURIComponent(impliedMediaURI.resolve(""));
+    if (aDict.url !== undefined && aDict.url) {
+      pinParams.url = encodeURIComponent(aDict.url);
     } else {
-      pinParams.media = encodeURIComponent(mediaURI.resolve(""));
-    }
-
-    // Set the page linked to the pin.
-    //
-    // When pinning images off dynamic sites, we won't want to link to the current
-    // URL because users directed from the pin won't see the same image.
-    //
-    // Warning: This code sucks because it relies on us to create edge-cases
-    // whenever we find them.
-    let currentLocation = window.content.location;
-    if (/(www\.)?facebook.com/.test(currentLocation.host)) {
-      pinParams.url = encodeURIComponent(pinParams.media);
-    } else {
-      pinParams.url = encodeURIComponent(currentLocation.href);
+      pinParams.url = encodeURIComponent(window.content.location.href);
     }
 
     // Set the alt test of the pin.
