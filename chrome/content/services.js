@@ -15,6 +15,7 @@ pinterestrc.SiteServicesController = (function() {
       if (aTarget instanceof HTMLImageElement) {
         let targetURI = makeURI(aTarget.src);
         let menuitem;
+        let isVideo;
 
         // Determine if we're pinning a video thumbnail
         //
@@ -22,15 +23,17 @@ pinterestrc.SiteServicesController = (function() {
         // rather sketchy.
         if (/^\/?vi\//.test(targetURI.path)) {
           menuitem = document.getElementById("pinterest-context-pinyoutube");
+          isVideo = true;
         } else {
           menuitem = document.getElementById("pinterest-context-pinit");
+          isVideo = false;
         }
 
         pinterestrc.MenuController.addMenuItem(
           menuitem,
           {
             media : aTarget.src,
-            is_video : true
+            is_video : isVideo
             // TODO: Do better than intentionally leave out the alt text
           });
       } else {
