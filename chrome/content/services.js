@@ -18,9 +18,6 @@ pinterestrc.SiteServicesController = (function() {
         let isVideo;
 
         // Determine if we're pinning a video thumbnail
-        //
-        // Note: We're relying on urls to be generated a certain way so this is
-        // rather sketchy.
         if (/^\/?vi\//.test(targetURI.path)) {
           menuitem = document.getElementById("pinterest-context-pinyoutube");
           isVideo = true;
@@ -32,7 +29,7 @@ pinterestrc.SiteServicesController = (function() {
         pinterestrc.MenuController.addMenuItem(
           menuitem,
           {
-            media : aTarget.src,
+            media : makeURI(aTarget.src),
             is_video : isVideo
             // TODO: Do better than intentionally leave out the alt text
           });
@@ -52,13 +49,12 @@ pinterestrc.SiteServicesController = (function() {
               //
               // NOTE: This is obviously sketchy. For performance reasons, I
               // don't want to make an API request so I'll live with it.
-              let thumbnailURL =
-                "http://img.youtube.com/vi/" + value + "/0.jpg";
+              let thumbnailURI = makeURI("http://img.youtube.com/vi/" + value + "/0.jpg");
 
               pinterestrc.MenuController.addMenuItem(
                 document.getElementById("pinterest-context-pinyoutube"),
                 {
-                  media : thumbnailURL,
+                  media : thumbnailURI,
                   alt : window.content.document.title,
                   is_video : true
                 });
@@ -72,41 +68,19 @@ pinterestrc.SiteServicesController = (function() {
 
   let FacebookService = {
     handle : function facebookServiceHandler(aLocation, aTarget) {
-      let menuitem;
       let targetURI;
       let targetDict = {};
 
       if (aTarget instanceof HTMLImageElement) {
-        targetDict.media = aTarget.src;
+        targetDict.media = makeURI(aTarget.src);
         targetDict.alt = aTarget.alt;
       } else {
-        targetDict.media = pinterestrc.PinterestContext.findBackgroundImage(aTarget);
-        if (!targetDict.media) {
+        let targetSource =
+          pinterestrc.PinterestContext.findBackgroundImage(aTarget);
+        if (!targetSource) {
           return;
         }
-      }
-
-      let targetURI = makeURI(targetDict.media);
-
-      // For any Facebook photo, only pin the full-size version
-      if (/fbcdn-sphotos.a.akamaihd.net/.test(targetURI.host)) {
-        // A static image URL looks something like:
-        // fbcdn.blah.akamai.net/<cdn_node>/<resize_params>/<fileid>_<filesize>.jpg
-        //
-        // We'll remove any resize_params if they exist and specify the filesize to
-        // be the largest size guaranteed to be available in an upload.
-        let pathPieces = targetURI.path.split("/");
-        let cdnNode = pathPieces[1];
-        let fileName = pathPieces[pathPieces.length - 1];
-
-        // Change file size
-        fileName.replace(/_.\.jpg$/i, "_n.jpg");
-
-        // Discard resize params
-        // TODO: Have a safer fallback
-        targetURI.path = "/" + cdnNode + "/" + fileName;
-
-        targetDict.media = targetURI.resolve("");
+        targetDict.media = makeURI(targetSource);
       }
 
       // Linking to Facebook won't lead back to the pin, so we'll avoid it by
@@ -126,7 +100,7 @@ pinterestrc.SiteServicesController = (function() {
         pinterestrc.MenuController.addMenuItem(
           document.getElementById("pinterest-context-pinit"),
           {
-            media : aTarget.src,
+            media : makeURI(aTarget.src),
             alt : aTarget.alt
           });
       } else {
@@ -136,7 +110,7 @@ pinterestrc.SiteServicesController = (function() {
           pinterestrc.MenuController.addMenuItem(
             document.getElementById("pinterest-context-pinbgimage"),
             {
-              media : bgImageSrc
+              media : makeURI(bgImageSrc)
             });
         }
       }
@@ -146,11 +120,7 @@ pinterestrc.SiteServicesController = (function() {
   let ServicesMap = [
     { k : /^https?:\/\/(www\.)?pinterest.com/, v : PinterestService },
     { k : /^https?:\/\/((www\.)|(img\.))?youtube.com/, v : YouTubeService },
-    { k : /^https?:\/\/[^\.]+\.ytimg.com/, v : YouTubeService },
-    { k : /^https?:\/\/(www\.)?facebook.com/, v : FacebookService },
-    { k : /^https?:\/\/fbcdn-sphotos.a.akamaihd.net/, v : FacebookService },
-    // Default
-    { k : /./, v : DefaultService }
+    { k : /^https?:\/\/(www\.)?facebook.com/, v : FacebookService }
   ];
 
   return {
@@ -163,7 +133,7 @@ pinterestrc.SiteServicesController = (function() {
         }
       }
 
-      // This should never happen
+      DefaultService.handle(aLocation, aTarget);
     }
   };
 })();
