@@ -14,8 +14,12 @@ pinterestrc.ThumbnailRewrite = (function() {
       let cdnNode = pathPieces[1];
       let fileName = pathPieces[pathPieces.length - 1];
 
-      // Change file size
-      fileName.replace(/_.\.jpg$/i, "_n.jpg");
+      // Change file size if smaller than desired
+      if (/_[ast]\.jpg$/i.test(fileName)) {
+        let sizeCharPos = fileName.length - 5;
+        fileName[sizeCharPos] = 'n';
+      }
+
       // Discard resize params
       uri.path = "/" + cdnNode + "/" + fileName;
 
