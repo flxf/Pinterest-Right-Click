@@ -11,6 +11,8 @@
               insertafter="context-viewbgimage"
               hidden="true" />
     <menuitem id="pinterest-context-pinit"
+              class="menuitem-iconic"
+              image="chrome://pinterest-context/skin/pinterest_logo.gif"
               label="&pinIt.label;"
               accesskey="&pinIt.accesskey;"
               insertafter="context-copyimage"
