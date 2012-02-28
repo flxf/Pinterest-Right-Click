@@ -11,9 +11,9 @@ pinterestrc.MenuController = (function() {
    * Show and create handler for a pinning option represented by aMenuItem
    */
   let addMenuItem = function addMenuItem(aMenuItem, aDict) {
-    let targetURI = aDict.media;
+    let targetSrc = aDict.media;
     // TODO: Investigate whether we can get something for non-http
-    if (!targetURI.schemeIs("http") && !targetURI.schemeIs("https")) {
+    if (!/^https?:\/\//.test(targetSrc)) {
       return false;
     }
 
@@ -60,8 +60,7 @@ pinterestrc.PinterestContext = {
     let pinParams = {};
 
     pinParams.media = encodeURIComponent(
-      pinterestrc.ThumbnailRewrite.getCanonicalThumbnailURI(aDict.media)
-        .resolve(""));
+      pinterestrc.ThumbnailRewrite.getCanonicalThumbnailURI(aDict.media));
 
     if (aDict.url !== undefined && aDict.url) {
       pinParams.url = encodeURIComponent(aDict.url);

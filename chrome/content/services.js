@@ -29,7 +29,7 @@ pinterestrc.SiteServicesController = (function() {
         pinterestrc.MenuController.addMenuItem(
           menuitem,
           {
-            media : makeURI(aTarget.src),
+            media : aTarget.src,
             is_video : isVideo
             // TODO: Do better than intentionally leave out the alt text
           });
@@ -49,12 +49,12 @@ pinterestrc.SiteServicesController = (function() {
               //
               // NOTE: This is obviously sketchy. For performance reasons, I
               // don't want to make an API request so I'll live with it.
-              let thumbnailURI = makeURI("http://img.youtube.com/vi/" + value + "/0.jpg");
+              let thumbnailSrc = "http://img.youtube.com/vi/" + value + "/0.jpg";
 
               pinterestrc.MenuController.addMenuItem(
                 document.getElementById("pinterest-context-pinyoutube"),
                 {
-                  media : thumbnailURI,
+                  media : thumbnailSrc,
                   alt : window.content.document.title,
                   is_video : true
                 });
@@ -72,7 +72,7 @@ pinterestrc.SiteServicesController = (function() {
       let targetDict = {};
 
       if (aTarget instanceof HTMLImageElement) {
-        targetDict.media = makeURI(aTarget.src);
+        targetDict.media = aTarget.src;
         targetDict.alt = aTarget.alt;
       } else {
         let targetSource =
@@ -80,7 +80,7 @@ pinterestrc.SiteServicesController = (function() {
         if (!targetSource) {
           return;
         }
-        targetDict.media = makeURI(targetSource);
+        targetDict.media = targetSource;
       }
 
       // Linking to Facebook won't lead back to the pin, so we'll avoid it by
@@ -100,7 +100,7 @@ pinterestrc.SiteServicesController = (function() {
         pinterestrc.MenuController.addMenuItem(
           document.getElementById("pinterest-context-pinit"),
           {
-            media : makeURI(aTarget.src),
+            media : aTarget.src,
             alt : aTarget.alt
           });
       } else {
@@ -110,7 +110,7 @@ pinterestrc.SiteServicesController = (function() {
           pinterestrc.MenuController.addMenuItem(
             document.getElementById("pinterest-context-pinbgimage"),
             {
-              media : makeURI(bgImageSrc)
+              media : bgImageSrc
             });
         }
       }
