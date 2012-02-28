@@ -31,7 +31,6 @@ pinterestrc.SiteServicesController = (function() {
           {
             media : aTarget.src,
             is_video : isVideo
-            // TODO: Do better than intentionally leave out the alt text
           });
       } else {
         // We assume there are no interesting background images on YouTube and
@@ -55,7 +54,7 @@ pinterestrc.SiteServicesController = (function() {
                 document.getElementById("pinterest-context-pinyoutube"),
                 {
                   media : thumbnailSrc,
-                  alt : window.content.document.title,
+                  //alt : window.content.document.title,
                   is_video : true
                 });
               break;
@@ -73,7 +72,7 @@ pinterestrc.SiteServicesController = (function() {
 
       if (aTarget instanceof HTMLImageElement) {
         targetDict.media = aTarget.src;
-        targetDict.alt = aTarget.alt;
+        //targetDict.alt = aTarget.alt;
       } else {
         let targetSource =
           pinterestrc.PinterestContext.findBackgroundImage(aTarget);
