@@ -7,6 +7,8 @@
   <script type="application/javascript" src="thumbnail_rules.js" />
   <popup id="contentAreaContextMenu">
     <menuitem id="pinterest-context-pinbgimage"
+              class="menuitem-iconic"
+              image="chrome://pinterest-context/skin/pinterest_logo.gif"
               label="&pinBGImage.label;"
               insertafter="context-viewbgimage"
               hidden="true" />
@@ -18,6 +20,8 @@
               insertafter="context-copyimage"
               hidden="true" />
     <menuitem id="pinterest-context-pinyoutube"
+              class="menuitem-iconic"
+              image="chrome://pinterest-context/skin/pinterest_logo.gif"
               label="&pinYouTube.label;"
               hidden="true" />
   </popup>
