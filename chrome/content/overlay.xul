@@ -8,20 +8,20 @@
   <popup id="contentAreaContextMenu">
     <menuitem id="pinterest-context-pinbgimage"
               class="menuitem-iconic"
-              image="chrome://pinterest-context/skin/pinterest_logo.gif"
+              image="chrome://pinterest-context/skin/pinterest_favicon.png"
               label="&pinBGImage.label;"
               insertafter="context-viewbgimage"
               hidden="true" />
     <menuitem id="pinterest-context-pinit"
               class="menuitem-iconic"
-              image="chrome://pinterest-context/skin/pinterest_logo.gif"
+              image="chrome://pinterest-context/skin/pinterest_favicon.png"
               label="&pinIt.label;"
               accesskey="&pinIt.accesskey;"
               insertafter="context-copyimage"
               hidden="true" />
     <menuitem id="pinterest-context-pinyoutube"
               class="menuitem-iconic"
-              image="chrome://pinterest-context/skin/pinterest_logo.gif"
+              image="chrome://pinterest-context/skin/pinterest_favicon.png"
               label="&pinYouTube.label;"
               hidden="true" />
   </popup>
