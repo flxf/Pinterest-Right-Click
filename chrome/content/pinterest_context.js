@@ -54,13 +54,14 @@ pinterestrc.PinterestContext = {
    * Handles the pinning action, fetching parameters from target information
    */
   pinTarget : function pinTarget(aDict) {
+    pinterestrc.ThumbnailRewrite.rewriteParams(aDict);
+
     let createURI = makeURI("http://pinterest.com/pin/create/bookmarklet/")
       .QueryInterface(Ci.nsIURL);
 
     let pinParams = {};
 
-    pinParams.media = encodeURIComponent(
-      pinterestrc.ThumbnailRewrite.getCanonicalThumbnailURI(aDict.media));
+    pinParams.media = encodeURIComponent(aDict.media);
 
     if (aDict.url !== undefined && aDict.url) {
       pinParams.url = encodeURIComponent(aDict.url);

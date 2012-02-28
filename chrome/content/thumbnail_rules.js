@@ -2,8 +2,8 @@ pinterestrc.ThumbnailRewrite = (function() {
 
   let FacebookRewrite = {
     // TODO: If this rewrite logic is wrong, it'll fail terribly.
-    rewrite : function facebookRewrite(aSrc) {
-      let uri = makeURI(aSrc);
+    rewrite : function facebookRewrite(aDict) {
+      let uri = makeURI(aDict.media);
 
       // Facebook Photo Path
       // /<cdn_node>/<resize_params>/<fileid>_<filesize>.jpg
@@ -19,20 +19,23 @@ pinterestrc.ThumbnailRewrite = (function() {
       // Discard resize params
       uri.path = "/" + cdnNode + "/" + fileName;
 
-      return uri.resolve("");
+      aDict.media = uri.resolve("");
+      aDict.url = aDict.media;
     }
   };
 
   let YouTubeRewrite = {
-    rewrite : function youtubeRewrite(aSrc) {
-      let uri = makeURI(aSrc);
+    rewrite : function youtubeRewrite(aDict) {
+      let uri = makeURI(aDict.media);
 
       // YouTube Video Thumbnail Path:
       // /vi/<video_id>/<thumbnail_specifier>.jpg
       let pathPieces = uri.path.split("/");
       let videoId = pathPieces[2];
 
-      return "http://img.youtube.com/vi/" + videoId + "/0.jpg";
+      aDict.media = "http://img.youtube.com/vi/" + videoId + "/0.jpg";
+      aDict.url = "http://www.youtube.com/watch?v=" + videoId;
+      aDict.is_video = "true";
     }
   };
 
@@ -43,14 +46,15 @@ pinterestrc.ThumbnailRewrite = (function() {
   ];
 
   return {
-    getCanonicalThumbnailURI : function getCanonicalThumbnailURI(aSrc) {
+    rewriteParams : function rewriteParams(aDict) {
+      let mediaSrc = aDict.media;
+
       for (let i = 0, len = RewriteMap.length; i < len; i++) {
-        if (RewriteMap[i].k.test(aSrc)) {
-          return RewriteMap[i].v.rewrite(aSrc);
+        if (RewriteMap[i].k.test(mediaSrc)) {
+          RewriteMap[i].v.rewrite(aDict);
+          return;
         }
       }
-
-      return aSrc;
     }
   };
 })();

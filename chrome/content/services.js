@@ -15,22 +15,18 @@ pinterestrc.SiteServicesController = (function() {
       if (aTarget instanceof HTMLImageElement) {
         let targetURI = makeURI(aTarget.src);
         let menuitem;
-        let isVideo;
 
         // Determine if we're pinning a video thumbnail
         if (/^\/?vi\//.test(targetURI.path)) {
           menuitem = document.getElementById("pinterest-context-pinyoutube");
-          isVideo = true;
         } else {
           menuitem = document.getElementById("pinterest-context-pinit");
-          isVideo = false;
         }
 
         pinterestrc.MenuController.addMenuItem(
           menuitem,
           {
             media : aTarget.src,
-            is_video : isVideo
           });
       } else {
         // We assume there are no interesting background images on YouTube and
@@ -55,7 +51,6 @@ pinterestrc.SiteServicesController = (function() {
                 {
                   media : thumbnailSrc,
                   //alt : window.content.document.title,
-                  is_video : true
                 });
               break;
             }
@@ -82,8 +77,9 @@ pinterestrc.SiteServicesController = (function() {
         targetDict.media = targetSource;
       }
 
-      // Linking to Facebook won't lead back to the pin, so we'll avoid it by
-      // linking right back to the image. Awful, I know.
+      // Link pin back to the image itself. This setting will be overwritten by
+      // the Facebook rewrite rules for Facebook photos. However, doing this now
+      // covers pinning other images on Facebook.
       targetDict.url = targetDict.media;
 
       // Recognize all Facebook images as foreground images
