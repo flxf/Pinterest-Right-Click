@@ -125,14 +125,19 @@ pinterestrc.PinterestContext = {
       if (aEvent.keyCode == 27) { // escape key-code
         closeDialog();
       }
-    }
+    };
     doc.addEventListener("keypress", escapeHandler);
 
     function closeDialog() {
       doc.body.removeChild(dialogBackdrop);
       doc.body.removeChild(dialogBox);
       doc.removeEventListener("keypress", escapeHandler);
+      // We don't need to remove listeners attached to our newly created DOM
+      // elements since we're destroying the elements.
     };
+
+    // Clicking outside the dialog closes the dialog
+    dialogBackdrop.addEventListener("click", closeDialog);
 
     // Create header {
     let dialogHeader = doc.createElement("div");
@@ -165,7 +170,6 @@ pinterestrc.PinterestContext = {
     dialogBox.appendChild(dialogHeader);
     dialogBox.appendChild(dialogFrame);
     doc.body.appendChild(dialogBox);
-
   },
 
   /**
