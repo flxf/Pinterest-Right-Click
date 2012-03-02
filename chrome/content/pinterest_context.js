@@ -90,11 +90,71 @@ pinterestrc.PinterestContext = {
     let queryString = "?" + paramList.join("&");
     createURI.query = queryString;
 
-    // Open the create pin dialog
-    let createDialogAttributes =
-      "status=no,resizable=no,scrollbars=yes,personalbar=no,directories=no," +
-      "location=yes,toolbar=no,menubar=no,width=632,height=270,left=0,top=0";
-    window.open(createURI.resolve(""), "", createDialogAttributes);
+    this.displayDialog(createURI.resolve(""));
+  },
+
+  /**
+   * Displays our custom-built 'add a pin' dialog
+   */
+  displayDialog : function displayDialog(createPath) {
+    let doc = window.content.document;
+
+    // Inject necessary CSS to show dialog. If the user has already pinned one
+    // image from the page we can leave the injected CSS lying around since it
+    // is unreferenced. If the user ends up pinning another image from the same
+    // page, we then don't have to reload the CSS.
+    let dialogStyle = doc.getElementById("pinterest-context-dialog-style");
+    if (dialogStyle == null) {
+      dialogStyle = doc.createElement("link");
+      dialogStyle.setAttribute("rel", "stylesheet");
+      dialogStyle.setAttribute("href", "resource://pinterest-context/dialog.css");
+      doc.head.appendChild(dialogStyle);
+    }
+
+    // Create translucent overlay over page
+    let dialogBackdrop = doc.createElement("div");
+    dialogBackdrop.className = "pinterest-context-backdrop";
+    doc.body.appendChild(dialogBackdrop);
+
+    // Create dialog container
+    let dialogBox = doc.createElement("div");
+    dialogBox.className = "pinterest-context-dialog";
+
+    // Create header {
+    let dialogHeader = doc.createElement("div");
+    dialogHeader.className = "pinterest-context-dialog-header";
+
+      // Header text {
+      let dialogHeaderText = doc.createElement("h2");
+      // TODO: Localization Evil!
+      dialogHeaderText.textContent = "Add a Pin";
+      dialogHeaderText.className = "pinterest-context-dialog-header-text";
+      //}
+
+      // Close button {
+      let dialogClose = doc.createElement("a");
+      dialogClose.className = "pinterest-context-dialog-close";
+      // CSS relies on having a nested span, see dialog.css
+      dialogClose.appendChild(doc.createElement("span"));
+
+      dialogClose.addEventListener("click", function(aEvent) {
+        doc.body.removeChild(dialogBackdrop);
+        doc.body.removeChild(dialogBox);
+      });
+      //}
+
+    dialogHeader.appendChild(dialogHeaderText);
+    dialogHeader.appendChild(dialogClose);
+    //}
+
+    // Use iframe to reach Pinterest
+    let dialogFrame = doc.createElement("iframe");
+    dialogFrame.setAttribute("class", "pinterest-context-dialog-frame");
+    dialogFrame.setAttribute("src", createPath);
+
+    dialogBox.appendChild(dialogHeader);
+    dialogBox.appendChild(dialogFrame);
+    doc.body.appendChild(dialogBox);
   },
 
   /**
