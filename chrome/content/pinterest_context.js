@@ -120,6 +120,20 @@ pinterestrc.PinterestContext = {
     let dialogBox = doc.createElement("div");
     dialogBox.className = "pinterest-context-dialog";
 
+    // Handle closing the dialog
+    function escapeHandler(aEvent) {
+      if (aEvent.keyCode == 27) { // escape key-code
+        closeDialog();
+      }
+    }
+    doc.addEventListener("keypress", escapeHandler);
+
+    function closeDialog() {
+      doc.body.removeChild(dialogBackdrop);
+      doc.body.removeChild(dialogBox);
+      doc.removeEventListener("keypress", escapeHandler);
+    };
+
     // Create header {
     let dialogHeader = doc.createElement("div");
     dialogHeader.className = "pinterest-context-dialog-header";
@@ -136,11 +150,7 @@ pinterestrc.PinterestContext = {
       dialogClose.className = "pinterest-context-dialog-close";
       // CSS relies on having a nested span, see dialog.css
       dialogClose.appendChild(doc.createElement("span"));
-
-      dialogClose.addEventListener("click", function(aEvent) {
-        doc.body.removeChild(dialogBackdrop);
-        doc.body.removeChild(dialogBox);
-      });
+      dialogClose.addEventListener("click", closeDialog);
       //}
 
     dialogHeader.appendChild(dialogHeaderText);
@@ -155,6 +165,7 @@ pinterestrc.PinterestContext = {
     dialogBox.appendChild(dialogHeader);
     dialogBox.appendChild(dialogFrame);
     doc.body.appendChild(dialogBox);
+
   },
 
   /**
