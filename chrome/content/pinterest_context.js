@@ -127,14 +127,15 @@ pinterestrc.PinterestContext = {
     function escapeHandler(aEvent) {
       if (aEvent.keyCode == 27) { // escape key-code
         closeDialog();
+        aEvent.stopPropagation();
       }
     };
-    doc.addEventListener("keypress", escapeHandler);
+    doc.addEventListener("keypress", escapeHandler, true);
 
     function closeDialog() {
       doc.body.removeChild(dialogBackdrop);
       doc.body.removeChild(dialogBox);
-      doc.removeEventListener("keypress", escapeHandler);
+      doc.removeEventListener("keypress", escapeHandler, true);
       // We don't need to remove listeners attached to our newly created DOM
       // elements since we're destroying the elements.
     };
@@ -169,6 +170,12 @@ pinterestrc.PinterestContext = {
     let dialogFrame = doc.createElement("iframe");
     dialogFrame.setAttribute("class", "pinterest-context-dialog-frame");
     dialogFrame.setAttribute("src", createPath);
+
+    // Our escape handler should capture when focussed inside the iframe as well
+    dialogFrame.addEventListener("load", function(aEvent) {
+      dialogFrame.contentWindow.addEventListener(
+        "keypress", escapeHandler, true);
+    });
 
     dialogBox.appendChild(dialogHeader);
     dialogBox.appendChild(dialogFrame);
