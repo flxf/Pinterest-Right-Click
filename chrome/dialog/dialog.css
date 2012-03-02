@@ -10,6 +10,7 @@
 }
 
 .pinterest-context-dialog {
+  background-color: #fcf9f9;
   box-shadow: 0 3px 6px rgba(34, 25, 25, 0.4);
   left: 50%;
   margin-left: -326px;
@@ -17,6 +18,43 @@
   position: fixed;
   top: 50%;
   z-index: 10001;
+}
+
+.pinterest-context-loading {
+  -moz-animation-duration: 0.66s;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-name: Spinner;
+  -moz-animation-timing-function: linear;
+  width: 199px;
+  height: 199px;
+  left: 50%;
+  top: 50%;
+  margin-left: -99px;
+  margin-top: -79px;
+  position: absolute;
+  z-index: -1;
+}
+
+@-moz-keyframes Spinner {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+.pinterest-context-loading-text {
+  color: #8c7e7e;
+  font-family: "helvetica neue",arial,sans-serif;
+  font-size: 12pt;
+  margin-top: 10px;
+  position: absolute;
+  text-align: center;
+  text-shadow: white 0px 1px 0px;
+  top: 50%;
+  width: 100%;
+  z-index: -1;
 }
 
 .pinterest-context-dialog-header {

@@ -132,6 +132,17 @@ pinterestrc.PinterestContext = {
     let dialogBox = doc.createElement("div");
     dialogBox.className = "pinterest-context-dialog";
 
+    let loadingImage = doc.createElement("img");
+    loadingImage.src = "resource://pinterest-context/spinner.png";
+    loadingImage.className = "pinterest-context-loading";
+    dialogBox.appendChild(loadingImage);
+
+    let loadingText = doc.createElement("div");
+    // TODO: Localization Evil!
+    loadingText.textContent = "loading";
+    loadingText.className = "pinterest-context-loading-text";
+    dialogBox.appendChild(loadingText);
+
     // Handle closing the dialog
     function escapeHandler(aEvent) {
       if (aEvent.keyCode == 27) { // escape key-code
