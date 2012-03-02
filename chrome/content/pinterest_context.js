@@ -95,6 +95,9 @@ pinterestrc.PinterestContext = {
 
   /**
    * Displays our custom-built 'add a pin' dialog
+   *
+   * TODO: This is gross unmaintainable Java-esque UI code. Although slower, we
+   * should load the DOM structure stuff from an HTML fragment.
    */
   displayDialog : function displayDialog(createPath) {
     let doc = window.content.document;
