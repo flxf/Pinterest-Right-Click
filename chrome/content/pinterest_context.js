@@ -238,7 +238,13 @@ window.addEventListener("load", function() {
    */
   function onPopupShowing(aEvent) {
     let target = document.popupNode;
-    let currentLocation = window.content.location;
+
+    // Note: Targeting an element inside an iframe makes us behave as if we
+    // we're visiting that iframe src. Currently, this fixes dialog behavior
+    // because right-clicking the dialog should do nothing, as expected from a
+    // Pinterest page. This isn't future-proof against new rules.
+    let currentLocation = target.ownerDocument.location;
+
     pinterestrc.SiteServicesController.handleLocation(currentLocation, target);
   }
 
