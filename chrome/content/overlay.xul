@@ -6,23 +6,27 @@
   <script type="application/javascript" src="services.js" />
   <script type="application/javascript" src="thumbnail_rules.js" />
   <popup id="contentAreaContextMenu">
+    <menuseparator id="pinterest-context-separator"
+                   insertbefore="inspect-separator"
+                   hidden="true" />
     <menuitem id="pinterest-context-pinbgimage"
               class="menuitem-iconic"
               image="chrome://pinterest-context/skin/pinterest_favicon.png"
               label="&pinBGImage.label;"
-              insertafter="context-viewbgimage"
+              insertafter="pinterest-context-separator"
               hidden="true" />
     <menuitem id="pinterest-context-pinit"
               class="menuitem-iconic"
               image="chrome://pinterest-context/skin/pinterest_favicon.png"
               label="&pinIt.label;"
               accesskey="&pinIt.accesskey;"
-              insertafter="context-copyimage"
+              insertafter="pinterest-context-separator"
               hidden="true" />
     <menuitem id="pinterest-context-pinyoutube"
               class="menuitem-iconic"
               image="chrome://pinterest-context/skin/pinterest_favicon.png"
               label="&pinYouTube.label;"
+              insertafter="pinterest-context-separator"
               hidden="true" />
   </popup>
 </overlay>

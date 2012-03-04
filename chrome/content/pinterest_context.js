@@ -23,6 +23,11 @@ pinterestrc.MenuController = (function() {
     };
     aMenuItem.addEventListener("command", menuItemListener);
 
+    // This is first menuitem inserted
+    if (activeMenuHandlers.length == 0) {
+      document.getElementById("pinterest-context-separator").hidden = false;
+    }
+
     activeMenuHandlers.push({
       item : aMenuItem,
       listener : menuItemListener
@@ -35,12 +40,16 @@ pinterestrc.MenuController = (function() {
    * Hides pinning options by default and clean up listeners when popup closes
    */
   let unloadMenuItems = function unloadMenuItems() {
-    for (let i = 0, len = activeMenuHandlers.length; i < len; i++) {
-      let menuHandler = activeMenuHandlers[i];
-      menuHandler.item.hidden = true;
-      menuHandler.item.removeEventListener("command", menuHandler.listener);
+    if (activeMenuHandlers.length > 0) {
+      document.getElementById("pinterest-context-separator").hidden = true;
+
+      for (let i = 0, len = activeMenuHandlers.length; i < len; i++) {
+        let menuHandler = activeMenuHandlers[i];
+        menuHandler.item.hidden = true;
+        menuHandler.item.removeEventListener("command", menuHandler.listener);
+      }
+      activeMenuHandlers = [];
     }
-    activeMenuHandlers = [];
   };
 
   return {
