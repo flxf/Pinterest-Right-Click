@@ -104,102 +104,14 @@ pinterestrc.PinterestContext = {
 
   /**
    * Displays our custom-built 'add a pin' dialog
-   *
-   * TODO: This is gross unmaintainable Java-esque UI code. Although slower, we
-   * should load the DOM structure stuff from an HTML fragment.
    */
   displayDialog : function displayDialog(createPath) {
     let doc = window.content.document;
+    doc.loadBindingDocument("resource://pinterest-context/dialogBinding.xml");
 
-    // Inject necessary CSS to show dialog. If the user has already pinned one
-    // image from the page we can leave the injected CSS lying around since it
-    // is unreferenced. If the user ends up pinning another image from the same
-    // page, we then don't have to reload the CSS.
-    let dialogStyle = doc.getElementById("pinterest-context-dialog-style");
-    if (dialogStyle == null) {
-      dialogStyle = doc.createElement("link");
-      dialogStyle.setAttribute("rel", "stylesheet");
-      dialogStyle.setAttribute("href", "resource://pinterest-context/dialog.css");
-      doc.head.appendChild(dialogStyle);
-    }
-
-    // Create translucent overlay over page
-    let dialogBackdrop = doc.createElement("div");
-    dialogBackdrop.className = "pinterest-context-backdrop";
-    doc.body.appendChild(dialogBackdrop);
-
-    // Create dialog container
-    let dialogBox = doc.createElement("div");
-    dialogBox.className = "pinterest-context-dialog";
-
-    let loadingImage = doc.createElement("img");
-    loadingImage.src = "resource://pinterest-context/spinner.png";
-    loadingImage.className = "pinterest-context-loading";
-    dialogBox.appendChild(loadingImage);
-
-    let loadingText = doc.createElement("div");
-    // TODO: Localization Evil!
-    loadingText.textContent = "loading";
-    loadingText.className = "pinterest-context-loading-text";
-    dialogBox.appendChild(loadingText);
-
-    // Handle closing the dialog
-    function escapeHandler(aEvent) {
-      if (aEvent.keyCode == 27) { // escape key-code
-        closeDialog();
-        aEvent.stopPropagation();
-      }
-    };
-    doc.addEventListener("keypress", escapeHandler, true);
-
-    function closeDialog() {
-      doc.body.removeChild(dialogBackdrop);
-      doc.body.removeChild(dialogBox);
-      doc.removeEventListener("keypress", escapeHandler, true);
-      // We don't need to remove listeners attached to our newly created DOM
-      // elements since we're destroying the elements.
-    };
-
-    // Clicking outside the dialog closes the dialog
-    dialogBackdrop.addEventListener("click", closeDialog);
-
-    // Create header {
-    let dialogHeader = doc.createElement("div");
-    dialogHeader.className = "pinterest-context-dialog-header";
-
-      // Header text {
-      let dialogHeaderText = doc.createElement("h2");
-      // TODO: Localization Evil!
-      dialogHeaderText.textContent = "Add a Pin";
-      dialogHeaderText.className = "pinterest-context-dialog-header-text";
-      //}
-
-      // Close button {
-      let dialogClose = doc.createElement("a");
-      dialogClose.className = "pinterest-context-dialog-close";
-      // CSS relies on having a nested span, see dialog.css
-      dialogClose.appendChild(doc.createElement("span"));
-      dialogClose.addEventListener("click", closeDialog);
-      //}
-
-    dialogHeader.appendChild(dialogHeaderText);
-    dialogHeader.appendChild(dialogClose);
-    //}
-
-    // Use iframe to reach Pinterest
-    let dialogFrame = doc.createElement("iframe");
-    dialogFrame.setAttribute("class", "pinterest-context-dialog-frame");
-    dialogFrame.setAttribute("src", createPath);
-
-    // Our escape handler should capture when focussed inside the iframe as well
-    dialogFrame.addEventListener("load", function(aEvent) {
-      dialogFrame.contentWindow.addEventListener(
-        "keypress", escapeHandler, true);
-    });
-
-    dialogBox.appendChild(dialogHeader);
-    dialogBox.appendChild(dialogFrame);
-    doc.body.appendChild(dialogBox);
+    let dialog = doc.createElement("pinterest-dialog");
+    dialog.setAttribute("createpath", createPath);
+    doc.body.appendChild(dialog);
   },
 
   /**

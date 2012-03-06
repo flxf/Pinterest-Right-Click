@@ -5,3 +5,5 @@ skin      pinterest-context classic/1.0 chrome/skin/
 resource  pinterest-context             chrome/dialog/
 
 locale    pinterest-context en-US       chrome/locale/en-US/
+
+category agent-style-sheets pinterestGlue resource://pinterest-context/dialogBinding.css
