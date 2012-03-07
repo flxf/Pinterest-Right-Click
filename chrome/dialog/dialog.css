@@ -14,11 +14,12 @@
   box-shadow: 0 3px 6px rgba(34, 25, 25, 0.4);
   height: auto;
   left: 50%;
-  margin-left: -326px;
+  margin-left: -325px;
   margin-top: -135px;
+  padding: 0;
   position: fixed;
   top: 50%;
-  width: 652px;
+  width: 650px;
   z-index: 10001;
 }
 
@@ -86,7 +87,7 @@
   height: 270px;
   margin: 0px;
   padding: 0px;
-  width: 652px;
+  width: 100%;
 }
 
 .growing-body {

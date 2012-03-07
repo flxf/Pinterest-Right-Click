@@ -18,8 +18,8 @@
           <html:span />
         </html:a>
       </html:div>
-      <html:div class="blah">
-        <html:iframe class="pinterest-context-dialog-frame" />
+      <html:div class="growing-body">
+        <html:iframe class="pinterest-context-dialog-frame" scrolling="no" />
       </html:div>
     </html:div>
   </content>
