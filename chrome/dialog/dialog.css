@@ -24,11 +24,12 @@
 }
 
 .pinterest-context-dialog-header {
-  display: block;
   background: -moz-linear-gradient(center top , #fffcfc, #f0eded) repeat scroll 0% 0% transparent;
   border-bottom: 1px solid #cccaca;
+  display: block;
   padding: 18px 31px 8px;
   position: relative;
+  text-align: left;
 }
 
 .pinterest-context-dialog-header-text {
