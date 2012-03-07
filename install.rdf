@@ -7,7 +7,7 @@
     <em:version>2012.03.20.0</em:version>
     <em:type>2</em:type>
     <em:creator>Felix Fung</em:creator>
-    <em:description>Create and upload pins to Pinterest by right-clicking</em:description>
+    <em:description>Create and upload pins to Pinterest by right-clicking.</em:description>
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>

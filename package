@@ -7,6 +7,7 @@ mkdir -p $OBJECT_DIR
 OBJECT_FILES="
   chrome.manifest
   chrome
+  icon.png
   install.rdf"
 
 rm $OBJECT_DIR/pinterest.xpi
