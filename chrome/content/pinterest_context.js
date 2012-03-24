@@ -106,12 +106,23 @@ pinterestrc.PinterestContext = {
    * Displays our custom-built 'add a pin' dialog
    */
   displayDialog : function displayDialog(createPath) {
-    let doc = window.content.document;
-    doc.loadBindingDocument("resource://pinterest-context/dialogBinding.xml");
+    // TODO: THIS IS AN EMERGENCY FIX.
+    //
+    // BEGIN EMERGENCY FIX
+    //
+    //let doc = window.content.document;
+    //doc.loadBindingDocument("resource://pinterest-context/dialogBinding.xml");
 
-    let dialog = doc.createElement("pinterest-dialog");
-    dialog.setAttribute("createpath", createPath);
-    doc.body.appendChild(dialog);
+    //let dialog = doc.createElement("pinterest-dialog");
+    //dialog.setAttribute("createpath", createPath);
+    //doc.body.appendChild(dialog);
+
+    // Open the create pin dialog
+    let createDialogAttributes =
+      "status=no,resizable=no,scrollbars=yes,personalbar=no,directories=no," +
+      "location=yes,toolbar=no,menubar=no,width=632,height=270,left=0,top=0";
+    window.open(createPath, "", createDialogAttributes);
+    // END EMERGENCY FIX
   },
 
   /**
