@@ -6,7 +6,8 @@ A Firefox Add-on adding an option to create pins from the context menu for image
 Downloads
 ---------
 
-If you're to use the add-on, the latest stable version can be downloaded from:
+To use the add-on, the latest stable version can be downloaded from:
+
 https://addons.mozilla.org/en-US/firefox/addon/pinterest-right-click/
 
 Building From Source
