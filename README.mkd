@@ -1,0 +1,16 @@
+Pinterest Right-Click
+=====================
+
+A Firefox Add-on adding an option to create pins from the context menu for images and videos.
+
+Downloads
+---------
+
+If you're to use the add-on, the latest stable version can be downloaded from:
+https://addons.mozilla.org/en-US/firefox/addon/pinterest-right-click/
+
+Building From Source
+--------------------
+
+1. Run `./package` from the top-level. This creates `pinterest.xpi` in the `output/` directory.
+2. Open the generated `pinterest.xpi` in Firefox to install.

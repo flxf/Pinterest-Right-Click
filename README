@@ -1,6 +1,0 @@
-Pinterest Right-Click :: Firefox Add-On
-
-Adds an option in context menus over media content to create a new pin.
-
-To build, run ./package from the top-level. This generates pinterest.xpi in
-the output/ directory. Open generated pinterest.xpi in Firefox to install.
