@@ -65,27 +65,39 @@ pinterestrc.SiteServicesController = (function() {
       let targetURI;
       let targetDict = {};
 
+      let foundTarget = false;
       if (aTarget instanceof HTMLImageElement) {
         targetDict.media = aTarget.src;
         //targetDict.alt = aTarget.alt;
-      } else {
-        let targetSource =
-          pinterestrc.PinterestContext.findBackgroundImage(aTarget);
-        if (!targetSource) {
-          return;
-        }
-        targetDict.media = targetSource;
+        foundTarget = true;
       }
 
-      // Link pin back to the image itself. This setting will be overwritten by
-      // the Facebook rewrite rules for Facebook photos. However, doing this now
-      // covers pinning other images on Facebook.
-      targetDict.url = targetDict.media;
+      if (!foundTarget) {
+        if (aTarget.classList.contains("uiPhotoThumb") ||
+            aTarget.classList.contains("uiScaledImageContainer")) {
+          targetDict.media = aTarget.firstChild.src;
+          foundTarget = true;
+        }
+      }
 
-      // Recognize all Facebook images as foreground images
-      pinterestrc.MenuController.addMenuItem(
-        document.getElementById("pinterest-context-pinit"),
-        targetDict);
+      if (!foundTarget) {
+        let targetSource =
+          pinterestrc.PinterestContext.findBackgroundImage(aTarget);
+        targetDict.media = targetSource;
+        foundTarget = true;
+      }
+
+      if (foundTarget) {
+        // Link pin back to the image itself. This setting will be overwritten
+        // by the Facebook rewrite rules for Facebook photos. However, doing
+        // this now covers pinning other images on Facebook.
+        targetDict.url = targetDict.media;
+
+        // Recognize all Facebook images as foreground images
+        pinterestrc.MenuController.addMenuItem(
+          document.getElementById("pinterest-context-pinit"),
+          targetDict);
+      }
     }
   };
 

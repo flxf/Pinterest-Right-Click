@@ -4,7 +4,7 @@
   <Description about="urn:mozilla:install-manifest">
     <em:id>pinterest-addon@felixfung.ca</em:id>
     <em:name>Pinterest Right-Click</em:name>
-    <em:version>2012.03.20.1</em:version>
+    <em:version>2012.01.27.0</em:version>
     <em:type>2</em:type>
     <em:creator>Felix Fung</em:creator>
     <em:description>Create and upload pins to Pinterest by right-clicking.</em:description>
@@ -12,7 +12,7 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>9.0</em:minVersion>
-        <em:maxVersion>13.0a1</em:maxVersion>
+        <em:maxVersion>21.0a1</em:maxVersion>
       </Description>
     </em:targetApplication>
   </Description>
