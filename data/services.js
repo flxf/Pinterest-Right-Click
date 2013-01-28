@@ -57,21 +57,17 @@ if (!pinterestrc.SiteServicesController) {
       handle : function youtubeServiceHandle(aLocation, aTarget) {
         if (aTarget instanceof HTMLImageElement) {
           let targetURI = makeURI(aTarget.src);
-          let menuitem;
 
           // Determine if we're pinning a video thumbnail
+          let label;
           if (/^\/?vi\//.test(targetURI.path)) {
-            menuitem = document.getElementById("pinterest-context-pinyoutube");
+            label = 'pin_youtube';
           } else {
-            menuitem = document.getElementById("pinterest-context-pinit");
+            label = 'pin_image';
           }
 
-          //pinterestrc.MenuController.addMenuItem(
-            //menuitem,
-            //{
-              //media : aTarget.src,
-            //});
           return {
+            label : label,
             media : aTarget.src
           };
         } else {
@@ -92,13 +88,8 @@ if (!pinterestrc.SiteServicesController) {
                 // don't want to make an API request so I'll live with it.
                 let thumbnailSrc = "http://img.youtube.com/vi/" + value + "/0.jpg";
 
-                //pinterestrc.MenuController.addMenuItem(
-                  //document.getElementById("pinterest-context-pinyoutube"),
-                  //{
-                    //media : thumbnailSrc,
-                    ////alt : window.content.document.title,
-                  //});
                 return {
+                  label : 'pin_youtube',
                   media : thumbnailSrc,
                   alt : window.content.document.title
                 };
@@ -146,9 +137,7 @@ if (!pinterestrc.SiteServicesController) {
           targetDict.url = targetDict.media;
 
           // Recognize all Facebook images as foreground images
-          //pinterestrc.MenuController.addMenuItem(
-            //document.getElementById("pinterest-context-pinit"),
-            //targetDict);
+          targetDict.label = 'pin_image';
           return targetDict;
         }
 
@@ -159,25 +148,16 @@ if (!pinterestrc.SiteServicesController) {
     let DefaultService = {
       handle : function defaultServiceHandler(aLocation, aTarget) {
         if (aTarget instanceof HTMLImageElement) {
-          //pinterestrc.MenuController.addMenuItem(
-            //document.getElementById("pinterest-context-pinit"),
-            //{
-              //media : aTarget.src,
-              //alt : aTarget.alt
-            //});
           return {
+            label : 'pin_image',
             media : aTarget.src,
             alt : aTarget.alt
           };
         } else {
           let bgImageSrc = findBackgroundImage(aTarget);
           if (bgImageSrc) {
-            //pinterestrc.MenuController.addMenuItem(
-              //document.getElementById("pinterest-context-pinbgimage"),
-              //{
-                //media : bgImageSrc
-              //});
             return {
+              label : 'pin_background',
               media : bgImageSrc
             };
           }
@@ -216,7 +196,9 @@ self.on("context", function(aTarget) {
   let currentLocation = aTarget.ownerDocument.location;
   pinterestrc.SiteServicesController.handleLocation(currentLocation, aTarget);
 
-  console.log(JSON.stringify(pinterestrc.SiteServicesController.lastData, null, ''));
+  if (pinterestrc.SiteServicesController.lastData) {
+    self.postMessage({ type : 'label', label : 'happy holidays' });
+  }
   return pinterestrc.SiteServicesController.lastData;
 });
 
