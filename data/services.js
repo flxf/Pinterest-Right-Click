@@ -56,11 +56,12 @@ if (!pinterestrc.SiteServicesController) {
     let YouTubeService = {
       handle : function youtubeServiceHandle(aLocation, aTarget) {
         if (aTarget instanceof HTMLImageElement) {
-          let targetURI = makeURI(aTarget.src);
-
           // Determine if we're pinning a video thumbnail
+          let targetAnchor = document.createElement('a');
+          targetAnchor.href = aTarget.src;
+
           let label;
-          if (/^\/?vi\//.test(targetURI.path)) {
+          if (/^\/?vi\//.test(targetAnchor.pathname)) {
             label = 'pin_youtube';
           } else {
             label = 'pin_image';
@@ -74,11 +75,12 @@ if (!pinterestrc.SiteServicesController) {
           // We assume there are no interesting background images on YouTube and
           // instead give the option to pin the current video if one exists.
 
-          let locationURI = makeURI(aLocation).QueryInterface(Ci.nsIURL);
-          if (/^\/watch/.test(locationURI.filePath)) {
+          let locationAnchor = document.createElement('a');
+          locationAnchor.href = aLocation;
+          if (/^\/watch/.test(locationAnchor.pathname)) {
             // User is on a YouTube video page, extract the video id from the URL
             // so that the video can be pinned.
-            let queryParams = locationURI.query.split("&");
+            let queryParams = locationAnchor.search.substr(1).split("&");
             for (let i = 0, len = queryParams.length; i < len; i++) {
               let [ key, value ] = queryParams[i].split("=");
               if (key == "v") {
@@ -194,12 +196,23 @@ if (!pinterestrc.SiteServicesController) {
 
 self.on("context", function(aTarget) {
   let currentLocation = aTarget.ownerDocument.location;
-  pinterestrc.SiteServicesController.handleLocation(currentLocation, aTarget);
+  let ssc = pinterestrc.SiteServicesController;
+  let pinnable = ssc.handleLocation(currentLocation, aTarget);
 
-  if (pinterestrc.SiteServicesController.lastData) {
-    self.postMessage({ type : 'label', label : 'happy holidays' });
+  if (pinnable) {
+    if (ssc.lastData.url === undefined) {
+      ssc.lastData.url = window.content.location.href;
+    }
+
+    // Not sure what Pinterest uses the title for, but let's give it to them
+    let pageTitle = window.content.document.title;
+    if (pageTitle) {
+      ssc.lastData.title = pageTitle;
+    }
+
+    self.postMessage({ type : 'label', label : ssc.lastData.label });
   }
-  return pinterestrc.SiteServicesController.lastData;
+  return pinnable;
 });
 
 self.on("click", function(aTarget) {
