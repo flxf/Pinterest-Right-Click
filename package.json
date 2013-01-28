@@ -1,0 +1,10 @@
+{
+    "name": "pinterest-right-click",
+    "icon64": "icon.png",
+    "license": "MIT/X11 (http://www.opensource.org/licenses/mit-license.php)",
+    "author": "Felix Fung",
+    "version": "2012.01.27.1",
+    "fullName": "Pinterest Right-Click",
+    "id": "jid1-gJXjGYuy59FhEw",
+    "description": "Create and upload pins to Pinterest by right-clicking."
+}
