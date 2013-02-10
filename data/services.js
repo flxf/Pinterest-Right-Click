@@ -147,6 +147,55 @@ if (!pinterestrc.SiteServicesController) {
       }
     };
 
+    let VimeoService = {
+      handle : function vimeoServiceHandler(aLocation, aTarget) {
+        if (aTarget instanceof HTMLImageElement) {
+          // Determine if we're pinning a video thumbnail
+          let targetAnchor = document.createElement('a');
+          targetAnchor.href = aTarget.src;
+
+          let label;
+          if (/^\/?ts\//.test(targetAnchor.pathname)) {
+            label = 'pin_vimeo';
+          } else {
+            label = 'pin_image';
+          }
+
+          return {
+            label : label,
+            media : aTarget.src
+          };
+        } else {
+          let featuredPlayer = aTarget.querySelector('#featured_player');
+
+          if (featuredPlayer) {
+            let thumbnailSrc = featuredPlayer.querySelector('div.vimeo_holder').style.backgroundImage;
+            thumbnailSrc = thumbnailSrc.slice(5, -2);
+
+            let flashvars = featuredPlayer.querySelector('param[name=flashvars]');
+            let clipId = null;
+            if (flashvars) {
+              flashvars.getAttribute('value').split('&').some(function(pair) {
+                let [ k, v ] = pair.split('=');
+                if (k == 'clip_id') {
+                  clipId = v;
+                  return true;
+                }
+                return false;
+              });
+            }
+
+            return {
+              label : 'pin_vimeo',
+              media : thumbnailSrc,
+              url : 'http://vimeo.com/' + clipId
+            };
+          }
+          return false;
+        }
+      }
+    };
+
     let DefaultService = {
       handle : function defaultServiceHandler(aLocation, aTarget) {
         if (aTarget instanceof HTMLImageElement) {
@@ -172,7 +221,8 @@ if (!pinterestrc.SiteServicesController) {
     let ServicesMap = [
       { k : /^https?:\/\/(www\.)?pinterest.com/, v : PinterestService },
       { k : /^https?:\/\/((www\.)|(img\.))?youtube.com/, v : YouTubeService },
-      { k : /^https?:\/\/(www\.)?facebook.com/, v : FacebookService }
+      { k : /^https?:\/\/(www\.)?facebook.com/, v : FacebookService },
+      { k : /^https?:\/\/(www\.)?vimeo.com/, v : VimeoService }
     ];
 
     return {
@@ -222,5 +272,6 @@ self.on("click", function(aTarget) {
   dialog.className = 'pinterest-rc-backdrop';
   doc.body.appendChild(dialog);
 
+  pinterestrc.SiteServicesController.lastData.type = 'pin';
   self.postMessage(pinterestrc.SiteServicesController.lastData);
 });
