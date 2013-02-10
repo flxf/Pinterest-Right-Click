@@ -195,7 +195,8 @@ if (!pinterestrc.SiteServicesController) {
 }
 
 self.on("context", function(aTarget) {
-  let currentLocation = aTarget.ownerDocument.location;
+  let doc = aTarget.ownerDocument;
+  let currentLocation = doc.location;
   let ssc = pinterestrc.SiteServicesController;
   let pinnable = ssc.handleLocation(currentLocation, aTarget);
 
@@ -205,7 +206,7 @@ self.on("context", function(aTarget) {
     }
 
     // Not sure what Pinterest uses the title for, but let's give it to them
-    let pageTitle = window.content.document.title;
+    let pageTitle = doc.title;
     if (pageTitle) {
       ssc.lastData.title = pageTitle;
     }
@@ -216,5 +217,10 @@ self.on("context", function(aTarget) {
 });
 
 self.on("click", function(aTarget) {
+  let doc = window.content.document;
+  let dialog = doc.createElement('div');
+  dialog.className = 'pinterest-rc-backdrop';
+  doc.body.appendChild(dialog);
+
   self.postMessage(pinterestrc.SiteServicesController.lastData);
 });
