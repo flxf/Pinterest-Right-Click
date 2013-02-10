@@ -84,10 +84,10 @@ if (!pinterestrc.SiteServicesController) {
             for (let i = 0, len = queryParams.length; i < len; i++) {
               let [ key, value ] = queryParams[i].split("=");
               if (key == "v") {
-                // Construct the thumbnail URL
-                //
-                // NOTE: This is obviously sketchy. For performance reasons, I
-                // don't want to make an API request so I'll live with it.
+                // NOTE: This will break if they ever update their thumbnail
+                // URLs. We could use their API to guarantee URL correctness,
+                // but we want to avoid making a request for performance
+                // reasons. We'll live with this brittleness.
                 let thumbnailSrc = "http://img.youtube.com/vi/" + value + "/0.jpg";
 
                 return {
