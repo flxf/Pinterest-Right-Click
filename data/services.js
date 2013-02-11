@@ -252,7 +252,7 @@ self.on("context", function(aTarget) {
 
   if (pinnable) {
     if (ssc.lastData.url === undefined) {
-      ssc.lastData.url = window.content.location.href;
+      ssc.lastData.url = doc.location.href;
     }
 
     // Not sure what Pinterest uses the title for, but let's give it to them
@@ -267,11 +267,6 @@ self.on("context", function(aTarget) {
 });
 
 self.on("click", function(aTarget) {
-  let doc = window.content.document;
-  let dialog = doc.createElement('div');
-  dialog.className = 'pinterest-rc-backdrop';
-  doc.body.appendChild(dialog);
-
   pinterestrc.SiteServicesController.lastData.type = 'pin';
   self.postMessage(pinterestrc.SiteServicesController.lastData);
 });
