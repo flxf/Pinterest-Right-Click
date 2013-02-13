@@ -92,8 +92,7 @@ if (!pinterestrc.SiteServicesController) {
 
                 return {
                   label : 'pin_youtube',
-                  media : thumbnailSrc,
-                  alt : window.content.document.title
+                  media : thumbnailSrc
                 };
               }
             }
@@ -109,10 +108,17 @@ if (!pinterestrc.SiteServicesController) {
         let targetURI;
         let targetDict = {};
 
+        function parseComment(aComment) {
+          if (!aComment) {
+            return '';
+          }
+          return aComment.replace(/\@\[\d+:\d+:([^\]]+)\]/g, "$1");
+        }
+
         let foundTarget = false;
         if (aTarget instanceof HTMLImageElement) {
           targetDict.media = aTarget.src;
-          //targetDict.alt = aTarget.alt;
+          targetDict.description = parseComment(aTarget.alt);
           foundTarget = true;
         }
 
@@ -120,6 +126,7 @@ if (!pinterestrc.SiteServicesController) {
           if (aTarget.classList.contains("uiPhotoThumb") ||
               aTarget.classList.contains("uiScaledImageContainer")) {
             targetDict.media = aTarget.firstChild.src;
+            targetDict.description = parseComment(aTarget.firstChild.alt);
             foundTarget = true;
           }
         }
@@ -202,7 +209,7 @@ if (!pinterestrc.SiteServicesController) {
           return {
             label : 'pin_image',
             media : aTarget.src,
-            alt : aTarget.alt
+            description : aTarget.alt
           };
         } else {
           let bgImageSrc = findBackgroundImage(aTarget);
@@ -259,6 +266,9 @@ self.on("context", function(aTarget) {
     let pageTitle = doc.title;
     if (pageTitle) {
       ssc.lastData.title = pageTitle;
+      if (!ssc.lastData.description) {
+        ssc.lastData.description = pageTitle;
+      }
     }
 
     self.postMessage({ type : 'label', label : ssc.lastData.label });
