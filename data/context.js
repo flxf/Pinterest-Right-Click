@@ -1,5 +1,5 @@
 self.on("context", function(aTarget) {
-  let doc = aTarget.ownerDocument;
+  let doc = window.content.document;
   let currentLocation = doc.location;
   let ssc = pinterestrc.SiteServicesController;
   let pinnable = ssc.handleLocation(currentLocation, aTarget);
@@ -13,9 +13,12 @@ self.on("context", function(aTarget) {
     let pageTitle = doc.title;
     if (pageTitle) {
       ssc.lastData.title = pageTitle;
-      if (!ssc.lastData.description) {
-        ssc.lastData.description = pageTitle;
-      }
+
+      // We'd rather be less wrong. Pinning YouTube thumbs from the page of
+      // another YouTube video gives really unexpected results.
+      //if (!ssc.lastData.description) {
+        //ssc.lastData.description = pageTitle;
+      //}
     }
 
     self.postMessage({ type : 'label', label : ssc.lastData.label });
