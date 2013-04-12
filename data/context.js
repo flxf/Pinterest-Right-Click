@@ -1,5 +1,8 @@
 self.on("context", function(aTarget) {
-  let doc = window.content.document;
+  // By using ownerDocument, we make sure the 'image inside an iframe' case
+  // still works.
+  let doc = aTarget.ownerDocument;
+
   let currentLocation = doc.location;
   let ssc = pinterestrc.SiteServicesController;
   let pinnable = ssc.handleLocation(currentLocation, aTarget);
