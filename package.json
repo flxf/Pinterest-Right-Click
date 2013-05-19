@@ -6,5 +6,8 @@
     "version": "2013.04.07.0",
     "fullName": "Pinterest Right-Click",
     "id": "pinterest-addon@felixfung.ca",
-    "description": "Create and upload pins to Pinterest by right-clicking."
+    "description": "Create and upload pins to Pinterest by right-clicking.",
+    "permissions": {
+      "private-browsing": true
+    }
 }
