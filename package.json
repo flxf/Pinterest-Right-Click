@@ -3,11 +3,8 @@
     "icon64": "icon.png",
     "license": "MIT/X11 (http://www.opensource.org/licenses/mit-license.php)",
     "author": "Felix Fung",
-    "version": "2013.04.07.0",
+    "version": "2013.06.10.0",
     "fullName": "Pinterest Right-Click",
     "id": "pinterest-addon@felixfung.ca",
-    "description": "Create and upload pins to Pinterest by right-clicking.",
-    "permissions": {
-      "private-browsing": true
-    }
+    "description": "Create and upload pins to Pinterest by right-clicking."
 }

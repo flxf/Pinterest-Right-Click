@@ -132,6 +132,16 @@ if (!pinterestrc.SiteServicesController) {
         }
 
         if (!foundTarget) {
+          if (aTarget instanceof HTMLAnchorElement && aTarget.getAttribute("rel") == "theater") {
+            let referencedImages = /http[^=]*?\.jpg[^&]*/.exec(aTarget.getAttribute("ajaxify"));
+            if (referencedImages.length == 1) {
+              targetDict.media = unescape(referencedImages[0]);
+              foundTarget = true;
+            }
+          }
+        }
+
+        if (!foundTarget) {
           let targetSource = findBackgroundImage(aTarget);
           if (targetSource) {
             targetDict.media = targetSource;
